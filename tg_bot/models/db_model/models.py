@@ -1,0 +1,278 @@
+import datetime
+
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, BigInteger, Float
+
+from tg_bot.models.db_model import Base
+
+from tg_bot.types.request.status import RequestStatus
+from tg_bot.types.member.status import MemberStatus
+from tg_bot.types.player.status import PlayerStatus
+from tg_bot.types.team_player.status import TeamPlayerStatus
+from tg_bot.types.team.status import TeamStatus
+from tg_bot.types.team.tournament_team.status import TournamentTeamStatus
+from tg_bot.types.registration.status import RegistrationStatus
+
+
+class Institution(Base):
+    __tablename__ = 'institutions'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = Column(String(256), nullable=False, unique=True)
+    institution_type = Column(String(256), nullable=False)
+
+    def __init__(self, name: str, institution_type: str):
+        self.name = name
+        self.institution_type = institution_type
+
+
+class UserTG(Base):
+    __tablename__ = 'users_tg'
+
+    id = Column(BigInteger, nullable=False, unique=True, primary_key=True, autoincrement=False)
+    username = Column(String(64), nullable=False)
+
+
+class Moderator(Base):
+    __tablename__ = 'moderators'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey('users_tg.id'), nullable=False)
+    moderator_rule = Column(String(32), nullable=False)
+
+    def __init__(self, user_id: int, rule: str):
+        self.user_id = user_id
+        self.moderator_rule = rule
+
+
+class RequestMember(Base):
+    __tablename__ = 'requests_member'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey('users_tg.id'), nullable=False)
+    date_request = Column(Date, nullable=False)
+    last_name = Column(String(64), nullable=False)
+    first_name = Column(String(64), nullable=False)
+    patronymic = Column(String(64), nullable=False)
+    document_photo = Column(String(256), nullable=False)
+    group = Column(String(32), nullable=False)
+    institution = Column(String(256), nullable=False)
+    member_type = Column(String(64), nullable=False)
+    comment = Column(String(256), nullable=True)
+    request_member_status = Column(String(64), nullable=False)
+
+    def __init__(self, user_id: int, last_name: str, first_name: str, patronymic: str, document_photo: str,
+                 group: str, institution: str, member_type: str):
+        self.user_id: int = user_id
+        self.date_request: datetime = datetime.datetime.now()
+        self.last_name: str = last_name
+        self.first_name: str = first_name
+        self.patronymic: str = patronymic
+        self.document_photo: str = document_photo
+        self.group: str = group
+        self.institution: str = institution
+        self.member_type: str = member_type
+        self.request_member_status: str = RequestStatus.WAIT
+
+
+class Member(Base):
+    __tablename__ = 'members'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey('users_tg.id'), nullable=False)
+    last_name = Column(String(64), nullable=False)
+    first_name = Column(String(64), nullable=False)
+    patronymic = Column(String(64), nullable=False)
+    institution = Column(String(256), nullable=False)
+    group = Column(String(32), nullable=False)
+    member_type = Column(String(64), nullable=False)
+    member_status = Column(String(64), nullable=False)
+
+    def __init__(self, user_id: int, last_name: str, first_name: str, patronymic: str,
+                 institution: str, group: str, member_type: str):
+        self.user_id = user_id
+        self.last_name = last_name
+        self.first_name = first_name
+        self.patronymic = patronymic
+        self.institution = institution
+        self.group = group
+        self.member_type = member_type
+        self.member_status = MemberStatus.ACTIVE
+
+
+class Player(Base):
+    __tablename__ = 'players'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    member_id = Column(Integer, ForeignKey('members.id'), nullable=False)
+    username = Column(String(64), nullable=False, unique=True)
+    fastcup = Column(String(64), nullable=False, unique=True)
+    discord = Column(String(64), nullable=False, unique=True)
+    player_status = Column(String(64), nullable=False)
+
+    def __init__(self, member_id: int, username: str, fastcup: str, discord: str):
+        self.member_id = member_id
+        self.username = username
+        self.fastcup = fastcup
+        self.discord = discord
+        self.player_status = PlayerStatus.ACTIVE
+
+
+class Team(Base):
+    __tablename__ = 'teams'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = Column(String(64), nullable=False)
+    photo = Column(String(256), nullable=False)
+    invite_code = Column(String(256), nullable=False, unique=True)
+    team_status = Column(String(64), nullable=False)
+
+    def __init__(self, name: str, photo: str, invite_code: str):
+        self.name = name
+        self.photo = photo
+        self.invite_code = invite_code
+        self.team_status = TeamStatus.ACTIVE
+
+
+class TeamPlayer(Base):
+    __tablename__ = 'team_players'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    is_captain = Column(Boolean, nullable=False)
+    is_participate = Column(Boolean, nullable=False, default=False)
+    team_player_status = Column(String(64), nullable=False)
+
+    def __init__(self, team_id: int, player_id: int, is_captain: bool = False, is_participate: bool = True):
+        self.team_id = team_id
+        self.player_id = player_id
+        self.is_captain = is_captain
+        self.is_participate = is_participate
+        self.team_player_status = TeamPlayerStatus.ACTIVE
+
+
+class RequestTeam(Base):
+    __tablename__ = 'requests_team'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    date_request = Column(Date, nullable=False)
+    comment = Column(String(256), nullable=True, default='')
+    request_status = Column(String(64), nullable=False)
+
+    def __init__(self, team_id: int):
+        self.team_id: int = team_id
+        self.date_request: datetime = datetime.datetime.now()
+        self.request_status: str = RequestStatus.WAIT
+
+
+class TournamentTeam(Base):
+    __tablename__ = 'tournament_teams'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    captain_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    second_player = Column(Integer, ForeignKey('players.id'), nullable=False)
+    third_player = Column(Integer, ForeignKey('players.id'), nullable=False)
+    four_player = Column(Integer, ForeignKey('players.id'), nullable=False)
+    fifth_player = Column(Integer, ForeignKey('players.id'), nullable=False)
+    group = Column(String(1), nullable=True)
+    name = Column(String(64), nullable=False)
+    photo = Column(String(256), nullable=False)
+    tournament_team_status = Column(String(64), nullable=False)
+
+    def __init__(self, captain_id: int, second_player: int, third_player: int, four_player: int, fifth_player: int,
+                 name: str, photo: str):
+        self.captain_id: int = captain_id
+        self.second_player: int = second_player
+        self.third_player: int = third_player
+        self.four_player: int = four_player
+        self.fifth_player: int = fifth_player
+        self.name: str = name
+        self.photo: str = photo
+        self.tournament_team_status: str = TournamentTeamStatus.ACTIVE
+
+
+class Day(Base):
+    __tablename__ = 'days'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    stream_link = Column(String(256), nullable=False, unique=True)
+    date = Column(Date, nullable=True, unique=True)
+    day_status = Column(String(64), nullable=False)
+
+
+class Registration(Base):
+    __tablename__ = 'registrations'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    start_date = Column(Float, nullable=False)
+    count_teams = Column(Integer, nullable=True)
+    end_date = Column(Float, nullable=True)
+    registration_status = Column(String(64), nullable=False)
+
+    def __init__(self, start_date: float, count_teams: int):
+        self.start_date = start_date
+        self.count_teams = count_teams
+        self.registration_status = RegistrationStatus.OPEN
+
+
+class Stage(Base):
+    __tablename__ = 'stages'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = Column(String(64), nullable=False)
+
+
+class Group(Base):
+    __tablename__ = 'groups'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    winner_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    char_group = Column(String(1), nullable=False, unique=True)
+
+
+class Match(Base):
+    __tablename__ = 'matches'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    first_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    second_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    day_id = Column(Integer, ForeignKey('days.id'), nullable=False)
+    stage_id = Column(Integer, ForeignKey('stages.id'), nullable=False)
+    format = Column(String(64), nullable=False)
+    match_status = Column(String(64), nullable=False)
+
+
+class Game(Base):
+    __tablename__ = 'games'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    match_id = Column(Integer, ForeignKey('matches.id'), nullable=False)
+    start_date = Column(Date, nullable=True, unique=True)
+    end_date = Column(Date, nullable=True, unique=True)
+    game_status = Column(String(64), nullable=False)
+
+
+class Map(Base):
+    __tablename__ = 'maps'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    game_id = Column(Integer, ForeignKey('games.id'), nullable=False)
+    winner_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    name = Column(String(64), nullable=False)
+    status_map = Column(String(64), nullable=False)
+
+
+class MapScore(Base):
+    __tablename__ = 'score_matches'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    map_id = Column(Integer, ForeignKey('maps.id'), nullable=False)
+    score_first_team = Column(Integer, nullable=False)
+    score_second_team = Column(Integer, nullable=False)
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
