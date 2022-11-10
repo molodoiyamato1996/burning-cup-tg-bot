@@ -4,11 +4,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_, and_
 
 from tg_bot.models.db_model.models import UserTG, Team, RequestMember, Member, Moderator, Player, TeamPlayer, \
-    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration
+    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match
 from tg_bot.models.db_model.db_client import DBClient
 
 from tg_bot.types.moderator.rule import ModeratorRule
 from tg_bot.types.team_player.status import TeamPlayerStatus
+from tg_bot.types.game.format import FormatGame
+from tg_bot.types.match.status import MatchStatus
 
 
 class DBInteraction(DBClient):
@@ -438,6 +440,10 @@ class DBInteraction(DBClient):
         ))
         self.session.commit()
 
+    async def set_tournament_team_group(self, tournament_team_id: int, group: str):
+        self.session.query(TournamentTeam).filter(TournamentTeam.id == tournament_team_id).update({'group': group})
+        self.session.commit()
+
     async def get_tournament_team_by_id(self, tournament_team_id: int):
         tournament_team = self.session.query(TournamentTeam).filter(TournamentTeam.id == tournament_team_id).first()
 
@@ -448,15 +454,20 @@ class DBInteraction(DBClient):
 
         return tournament_teams
 
+    async def get_tournament_teams_by_group(self, group: str):
+        tournament_teams = self.session.query(TournamentTeam).filter(TournamentTeam.group == group).all()
+
+        return tournament_teams
+
     async def get_all_team_players(self):
         team_players = self.session.query(TeamPlayer).all()
 
         return team_players
 
-    async def add_registration(self, start_date: datetime, count_teams: int):
+    async def add_registration(self, opening_date: float, limit_teams: int):
         self.session.add(Registration(
-            start_date=start_date,
-            count_teams=count_teams
+            opening_date=opening_date,
+            limit_teams=limit_teams
         ))
         self.session.commit()
 
@@ -470,4 +481,16 @@ class DBInteraction(DBClient):
 
     async def set_registration_status(self, registration_id: int, status: str):
         self.session.query(Registration).filter(Registration.id == registration_id).update({'registration_status': status})
+        self.session.commit()
+
+    async def set_data_close_registration(self, registration_id: int, closing_date: float):
+        self.session.query(Registration).filter(Registration.id == registration_id).update({'closing_date': closing_date})
+
+    async def and_match(self, first_team_id: int, second_team_id: int, stage: str):
+        self.session.add(Match(
+            first_team_id=first_team_id,
+            second_team_id=second_team_id,
+            stage=stage
+        ))
+
         self.session.commit()

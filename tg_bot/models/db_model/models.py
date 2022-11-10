@@ -11,6 +11,8 @@ from tg_bot.types.team_player.status import TeamPlayerStatus
 from tg_bot.types.team.status import TeamStatus
 from tg_bot.types.team.tournament_team.status import TournamentTeamStatus
 from tg_bot.types.registration.status import RegistrationStatus
+from tg_bot.types.game.format import FormatGame
+from tg_bot.types.match.status import MatchStatus
 
 
 class Institution(Base):
@@ -192,27 +194,18 @@ class TournamentTeam(Base):
         self.tournament_team_status: str = TournamentTeamStatus.ACTIVE
 
 
-class Day(Base):
-    __tablename__ = 'days'
-
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    stream_link = Column(String(256), nullable=False, unique=True)
-    date = Column(Date, nullable=True, unique=True)
-    day_status = Column(String(64), nullable=False)
-
-
 class Registration(Base):
     __tablename__ = 'registrations'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    start_date = Column(Float, nullable=False)
-    count_teams = Column(Integer, nullable=True)
-    end_date = Column(Float, nullable=True)
+    opening_date = Column(Float, nullable=False)
+    closing_date = Column(Float, nullable=True)
+    limit_teams = Column(Integer, nullable=True)
     registration_status = Column(String(64), nullable=False)
 
-    def __init__(self, start_date: float, count_teams: int):
-        self.start_date = start_date
-        self.count_teams = count_teams
+    def __init__(self, opening_date: float, limit_teams: int):
+        self.opening_date = opening_date
+        self.limit_teams = limit_teams
         self.registration_status = RegistrationStatus.OPEN
 
 
@@ -223,24 +216,23 @@ class Stage(Base):
     name = Column(String(64), nullable=False)
 
 
-class Group(Base):
-    __tablename__ = 'groups'
-
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    winner_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
-    char_group = Column(String(1), nullable=False, unique=True)
-
-
 class Match(Base):
     __tablename__ = 'matches'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     first_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
     second_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
-    day_id = Column(Integer, ForeignKey('days.id'), nullable=False)
-    stage_id = Column(Integer, ForeignKey('stages.id'), nullable=False)
+    stage = Column(String(64), nullable=False)
     format = Column(String(64), nullable=False)
     match_status = Column(String(64), nullable=False)
+
+    def __init__(self, first_team_id: int, second_team_id: int, stage: str, format_game: str = FormatGame.BO3,
+                 match_status: str = MatchStatus.WAIT):
+        self.first_team_id = first_team_id
+        self.second_team_id = second_team_id
+        self.stage = stage
+        self.format = format_game
+        self.match_status = match_status
 
 
 class Game(Base):
@@ -248,9 +240,18 @@ class Game(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     match_id = Column(Integer, ForeignKey('matches.id'), nullable=False)
-    start_date = Column(Date, nullable=True, unique=True)
-    end_date = Column(Date, nullable=True, unique=True)
+    start_date = Column(Float, nullable=False)
+    end_date = Column(Float, nullable=True, unique=True)
     game_status = Column(String(64), nullable=False)
+
+
+class Day(Base):
+    __tablename__ = 'days'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    stream_link = Column(String(256), nullable=False, unique=True)
+    date = Column(Float, nullable=True, unique=True)
+    day_status = Column(String(64), nullable=False)
 
 
 class Map(Base):
