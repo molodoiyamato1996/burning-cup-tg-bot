@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, BigInteger, Float
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, BigInteger, Float, TIMESTAMP
 
 from tg_bot.models.db_model import Base
 
@@ -198,12 +198,12 @@ class Registration(Base):
     __tablename__ = 'registrations'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    opening_date = Column(Float, nullable=False)
-    closing_date = Column(Float, nullable=True)
+    opening_date = Column(TIMESTAMP, nullable=False)
+    closing_date = Column(TIMESTAMP, nullable=True)
     limit_teams = Column(Integer, nullable=True)
     registration_status = Column(String(64), nullable=False)
 
-    def __init__(self, opening_date: float, limit_teams: int):
+    def __init__(self, opening_date: datetime, limit_teams: int):
         self.opening_date = opening_date
         self.limit_teams = limit_teams
         self.registration_status = RegistrationStatus.OPEN
@@ -220,17 +220,19 @@ class Match(Base):
     __tablename__ = 'matches'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    first_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
-    second_team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
+    first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=False)
+    second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=False)
     stage = Column(String(64), nullable=False)
+    group = Column(String(64), nullable=False)
     format = Column(String(64), nullable=False)
     match_status = Column(String(64), nullable=False)
 
-    def __init__(self, first_team_id: int, second_team_id: int, stage: str, format_game: str = FormatGame.BO3,
-                 match_status: str = MatchStatus.WAIT):
-        self.first_team_id = first_team_id
-        self.second_team_id = second_team_id
+    def __init__(self, first_tournament_team_id: int, second_tournament_team_id: int, stage: str, format_game: str = FormatGame.BO3,
+                 match_status: str = MatchStatus.WAIT, group: str = None):
+        self.first_tournament_team_id = first_tournament_team_id
+        self.second_tournament_team_id = second_tournament_team_id
         self.stage = stage
+        self.group = group
         self.format = format_game
         self.match_status = match_status
 

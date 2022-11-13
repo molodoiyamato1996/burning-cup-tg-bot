@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 
 from aiogram import Bot, Dispatcher
@@ -23,6 +24,8 @@ from tg_bot.types.user.institution.type import InstitutionType
 from tg_bot.misc.phares import Phrases
 
 from data import schools, colleges
+
+from tg_bot.misc.matches import add_opening_matches, grouping
 
 
 logger = logging.getLogger(__name__)
@@ -62,6 +65,54 @@ async def add_admin_data(db, admin_id: int):
         member_type='STUDENT'
     )
     await db.add_player(user_id=user.id, username='skywalker', discord='skywalker#1234', fastcup='skywalker')
+
+
+class Player:
+    def __init__(self, id):
+        self.id = id
+
+
+async def add_tournament_teams(db):
+    for index in range(1, 17, 1):
+        team_name = f'team{index}'
+        players = []
+
+        for i in range(1, 6, 1):
+            user_id = index * 5 + i + i * 8
+            print(user_id)
+            username = f'username{user_id}'
+            discord = f'{username}#1234'
+
+            await db.add_user(user_id=user_id, username=username)
+
+            await db.add_member(
+                user_id=user_id,
+                last_name='test',
+                first_name='test',
+                patronymic='test',
+                institution='СПК',
+                group='Д192/2',
+                member_type='STUDENT',
+            )
+
+            player = await db.add_player(
+                user_id=user_id,
+                username=username,
+                discord=discord,
+                fastcup=username
+            )
+
+            if i == 5:
+                captain = player
+            else:
+                players.append(player)
+
+        await db.add_tournament_team(
+            captain_id=captain.id,
+            players=players,
+            name=team_name,
+            photo=f'{team_name}.png'
+        )
 
 
 async def add_test_team(db, admin_id: int):
@@ -116,7 +167,16 @@ async def telegram_bot():
     db_interaction = DBInteraction(sqlalchemy_url=sqlalchemy_database_uri, base=Base)
     db_interaction.create_tables()
 
-    # await add_institutions(db=db_interaction)
+    await db_interaction.add_registration(
+        opening_date=datetime.datetime.now(),
+        limit_teams=16
+    )
+
+    await add_admin_data(db=db_interaction, admin_id=config.tg_bot.admin_id)
+    await add_tournament_teams(db=db_interaction)
+    await grouping(db_model=db_interaction)
+    await add_opening_matches(db_model=db_interaction)
+    await add_institutions(db=db_interaction)
     # await add_test_team(db=db_interaction, admin_id=config.tg_bot.admin_id)
 
     bot['db_model'] = db_interaction

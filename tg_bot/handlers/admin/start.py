@@ -1,3 +1,5 @@
+import os
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
@@ -12,7 +14,7 @@ async def start(msg: types.Message, state=FSMContext):
     start_ikb = await admin_kb.get_start_ikb()
 
     msg_text = f'<b>{Emoji.burn} Добро пожаловать администратор</b>\n\n' \
-                     f'Выберите действие:'
+               f'Выберите действие:'
 
     await msg.answer(text=msg_text,
                      reply_markup=start_ikb)

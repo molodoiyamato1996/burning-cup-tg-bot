@@ -1,3 +1,5 @@
+import os
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
@@ -30,7 +32,6 @@ async def enter_name_team(msg: types.Message, state=FSMContext):
 
 
 async def send_team_photo(msg: types.Message, state=FSMContext):
-    document_photo = msg.photo[-1].file_id
     db_model = msg.bot.get('db_model')
 
     user_id = msg.from_user.id
@@ -38,12 +39,16 @@ async def send_team_photo(msg: types.Message, state=FSMContext):
     state_data = await state.get_data()
     team_name = state_data.get('team_name')
 
+    team_photo_src = os.path.abspath('team_photos')
+    team_photo_src = f'{team_photo_src}\{team_name}.png'
+    team_photo = await msg.photo[-1].download(destination_file=team_photo_src)
+
     invite_code = await generate_invite_code()
 
     while await db_model.is_valid_invite_code(invite_code=invite_code):
         invite_code = await generate_invite_code()
 
-    team = await db_model.add_team(name=team_name, photo=document_photo, invite_code=invite_code)
+    team = await db_model.add_team(name=team_name, photo=team_photo, invite_code=invite_code)
 
     await db_model.add_team_player(user_id=user_id, team_id=team.id, is_captain=True)
 

@@ -127,7 +127,7 @@ class DBInteraction(DBClient):
 
     async def add_member(self, user_id: int, last_name: str, first_name: str, patronymic: str,
                          institution: str, member_type: str, group: str):
-        member = Member(
+        self.session.add(Member(
             user_id=user_id,
             last_name=last_name,
             first_name=first_name,
@@ -135,9 +135,12 @@ class DBInteraction(DBClient):
             institution=institution,
             group=group,
             member_type=member_type,
-        )
-        self.session.add(member)
+        ))
         self.session.commit()
+
+        member = await self.get_member(user_id=user_id)
+
+        return member
 
     async def get_member(self, user_id: int) -> Member:
         member = self.session.query(Member).filter(Member.user_id == user_id).first()
@@ -172,15 +175,18 @@ class DBInteraction(DBClient):
     async def add_player(self, user_id: int, username: str, discord: str, fastcup: str):
         member = await self.get_member(user_id=user_id)
 
-        player = Player(
+        self.session.add(Player(
             member_id=member.id,
             username=username,
             discord=discord,
             fastcup=fastcup
-        )
-        self.session.add(player)
+        ))
+
         self.session.commit()
-        self.session.commit()
+
+        player = await self.get_player(user_id=user_id)
+
+        return player
 
     async def get_player_by_id(self, player_id: int) -> Player:
         player = self.session.query(Player).filter(Player.id == player_id).first()
@@ -464,7 +470,7 @@ class DBInteraction(DBClient):
 
         return team_players
 
-    async def add_registration(self, opening_date: float, limit_teams: int):
+    async def add_registration(self, opening_date: datetime, limit_teams: int):
         self.session.add(Registration(
             opening_date=opening_date,
             limit_teams=limit_teams
@@ -486,11 +492,12 @@ class DBInteraction(DBClient):
     async def set_data_close_registration(self, registration_id: int, closing_date: float):
         self.session.query(Registration).filter(Registration.id == registration_id).update({'closing_date': closing_date})
 
-    async def and_match(self, first_team_id: int, second_team_id: int, stage: str):
+    async def add_match(self, first_tournament_team_id: int, second_tournament_team_id: int, stage: str, group: str = None):
         self.session.add(Match(
-            first_team_id=first_team_id,
-            second_team_id=second_team_id,
-            stage=stage
+            first_tournament_team_id=first_tournament_team_id,
+            second_tournament_team_id=second_tournament_team_id,
+            stage=stage,
+            group=group
         ))
 
         self.session.commit()
