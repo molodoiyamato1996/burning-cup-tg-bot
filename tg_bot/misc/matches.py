@@ -43,5 +43,5 @@ async def add_opening_matches(db_model):
                 first_tournament_team_id=first_tournament_team,
                 second_tournament_team_id=second_tournament_team,
                 stage=Stage.QUARTERFINAL,
-                group=group
+                group=groups[group]
             )

@@ -172,11 +172,11 @@ async def telegram_bot():
         limit_teams=16
     )
 
-    await add_admin_data(db=db_interaction, admin_id=config.tg_bot.admin_id)
-    await add_tournament_teams(db=db_interaction)
-    await grouping(db_model=db_interaction)
-    await add_opening_matches(db_model=db_interaction)
-    await add_institutions(db=db_interaction)
+    # await add_admin_data(db=db_interaction, admin_id=config.tg_bot.admin_id)
+    # await add_tournament_teams(db=db_interaction)
+    # await grouping(db_model=db_interaction)
+    # await add_opening_matches(db_model=db_interaction)
+    # await add_institutions(db=db_interaction)
     # await add_test_team(db=db_interaction, admin_id=config.tg_bot.admin_id)
 
     bot['db_model'] = db_interaction

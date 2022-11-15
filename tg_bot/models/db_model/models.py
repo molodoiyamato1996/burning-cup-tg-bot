@@ -220,8 +220,8 @@ class Match(Base):
     __tablename__ = 'matches'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=False)
-    second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=False)
+    first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
+    second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     stage = Column(String(64), nullable=False)
     group = Column(String(64), nullable=False)
     format = Column(String(64), nullable=False)
@@ -242,9 +242,14 @@ class Game(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     match_id = Column(Integer, ForeignKey('matches.id'), nullable=False)
-    start_date = Column(Float, nullable=False)
-    end_date = Column(Float, nullable=True, unique=True)
+    start_date = Column(TIMESTAMP, nullable=False)
+    end_date = Column(TIMESTAMP, nullable=True, unique=True)
     game_status = Column(String(64), nullable=False)
+
+    def __init__(self, match_id: int, start_date: datetime):
+        self.match_id = match_id
+        self.start_date = start_date
+        self.game_status = 'WAIT'
 
 
 class Day(Base):

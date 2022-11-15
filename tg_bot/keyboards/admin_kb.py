@@ -26,6 +26,35 @@ class AdminKb:
         self.view_tournament_teams = InlineKeyboardButton('Показать команды', callback_data='view_teams')
         self.block_team = InlineKeyboardButton('Заблокировать команду', callback_data='block_team')
 
+    async def get_add_game_ikb(self, matches: list) -> InlineKeyboardMarkup:
+        add_game_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for match in matches:
+            add_game_ikb.add(
+                InlineKeyboardButton(f'{match.get("first_match_team").name} vs {match.get("second_match_team").name}', callback_data=f'choice_match?match_id={match.get("id")}')
+            )
+
+        return add_game_ikb
+
+    async def get_games_ikb(self) -> InlineKeyboardMarkup:
+        games_ikb = InlineKeyboardMarkup(row_width=1)
+
+        ibs_games_ikb = [
+            InlineKeyboardButton('Добавить игру', callback_data='add_game'),
+            InlineKeyboardButton('Обновить результаты игры', callback_data='update_game_result'),
+        ]
+
+        games_ikb.add(*ibs_games_ikb)
+
+        return games_ikb
+
+    async def get_match_ikb(self) -> InlineKeyboardMarkup:
+        match_ikb = InlineKeyboardMarkup(row_width=1)
+
+        ibs_match_ikb = [
+            InlineKeyboardButton('Обновить результаты матча', callback_data='add_game')
+        ]
+
     async def get_view_tournament_team_ikb(self, tournament_teams: list) -> InlineKeyboardMarkup:
         view_team_ikb = InlineKeyboardMarkup(row_width=1)
 
@@ -100,9 +129,6 @@ class AdminKb:
         back_to_registration_ikb.add(self.back_to_registration)
 
         return back_to_registration_ikb
-
-    async def get_match_ikb(self):
-        match = InlineKeyboardMarkup(row_width=1)
 
     async def get_view_tournament_teams_ikb(self, tournament_teams: list) -> InlineKeyboardMarkup:
         view_tournament_teams_ikb = InlineKeyboardMarkup(row_width=1)

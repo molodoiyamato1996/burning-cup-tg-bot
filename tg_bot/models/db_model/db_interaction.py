@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_, and_
 
 from tg_bot.models.db_model.models import UserTG, Team, RequestMember, Member, Moderator, Player, TeamPlayer, \
-    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match
+    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game
 from tg_bot.models.db_model.db_client import DBClient
 
 from tg_bot.types.moderator.rule import ModeratorRule
@@ -500,4 +500,21 @@ class DBInteraction(DBClient):
             group=group
         ))
 
+        self.session.commit()
+
+    async def get_matches(self):
+        matches = self.session.query(Match).filter(Match.match_status == 'WAIT').all()
+
+        return matches
+
+    async def get_match(self, match_id: int) -> Match:
+        match = self.session.query(Match).filter(Match.id == match_id).first()
+
+        return match
+
+    async def add_game(self, match_id: int, start_date: datetime):
+        self.session.add(Game(
+            match_id=match_id,
+            start_date=start_date
+        ))
         self.session.commit()
