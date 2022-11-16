@@ -26,6 +26,27 @@ class AdminKb:
         self.view_tournament_teams = InlineKeyboardButton('Показать команды', callback_data='view_teams')
         self.block_team = InlineKeyboardButton('Заблокировать команду', callback_data='block_team')
 
+    async def get_choice_team_ikb(self, first_team, second_team, game_id: int) -> InlineKeyboardMarkup:
+        choice_team_ikb = InlineKeyboardMarkup(row_width=1)
+
+        ib_first_team = InlineKeyboardButton(first_team.name, callback_data=f'choice_team?team_id={first_team.id}&game_id={game_id}')
+        ib_second_team = InlineKeyboardButton(second_team.name, callback_data=f'choice_team?team_id={second_team.id}&game_id={game_id}')
+
+        choice_team_ikb.add(ib_first_team).add(ib_second_team)
+
+        return choice_team_ikb
+
+    async def get_choice_game_ikb(self, games: list) -> InlineKeyboardMarkup:
+        choice_game_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for game in games:
+            choice_game_ikb.add(
+                InlineKeyboardButton(f'{game.get("first_match_team").name} vs {game.get("second_match_team").name}',
+                                     callback_data=f'choice_game?game_id={game.get("id")}&first_team_id={game.get("first_match_team").id}&second_team_id={game.get("second_match_team").id}')
+            )
+
+        return choice_game_ikb
+
     async def get_add_game_ikb(self, matches: list) -> InlineKeyboardMarkup:
         add_game_ikb = InlineKeyboardMarkup(row_width=1)
 
@@ -41,7 +62,7 @@ class AdminKb:
 
         ibs_games_ikb = [
             InlineKeyboardButton('Добавить игру', callback_data='add_game'),
-            InlineKeyboardButton('Обновить результаты игры', callback_data='update_game_result'),
+            InlineKeyboardButton('Обновить результаты игры', callback_data='update_result_game'),
         ]
 
         games_ikb.add(*ibs_games_ikb)

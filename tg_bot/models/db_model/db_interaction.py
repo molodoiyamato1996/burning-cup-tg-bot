@@ -11,6 +11,7 @@ from tg_bot.types.moderator.rule import ModeratorRule
 from tg_bot.types.team_player.status import TeamPlayerStatus
 from tg_bot.types.game.format import FormatGame
 from tg_bot.types.match.status import MatchStatus
+from tg_bot.types.game.status import GameStatus
 
 
 class DBInteraction(DBClient):
@@ -492,7 +493,7 @@ class DBInteraction(DBClient):
     async def set_data_close_registration(self, registration_id: int, closing_date: float):
         self.session.query(Registration).filter(Registration.id == registration_id).update({'closing_date': closing_date})
 
-    async def add_match(self, first_tournament_team_id: int, second_tournament_team_id: int, stage: str, group: str = None):
+    async def add_match(self, first_tournament_team_id: int, stage: str, group: str = None, second_tournament_team_id: int = None):
         self.session.add(Match(
             first_tournament_team_id=first_tournament_team_id,
             second_tournament_team_id=second_tournament_team_id,
@@ -512,9 +513,34 @@ class DBInteraction(DBClient):
 
         return match
 
+    async def set_match_status(self, match_id: int, status: str):
+        self.session.query(Match).filter(Match.id == match_id).update({'match_status': status})
+
+        self.session.commit()
+
     async def add_game(self, match_id: int, start_date: datetime):
         self.session.add(Game(
             match_id=match_id,
             start_date=start_date
         ))
+        self.session.commit()
+
+    async def get_game(self, game_id: int):
+        games = self.session.query(Game).filter(Game.game_id == game_id).first()
+
+        return games
+
+    async def get_games(self):
+        games = self.session.query(Game).filter(Game.game_status != GameStatus.ONLINE).all()
+
+        return games
+
+    async def update_result_game(self, game_id: int, winner_team_id: int):
+        self.session.query(Game).filter(Game.id == game_id).update({'winner_tournament_team_id': winner_team_id})
+
+        self.session.commit()
+
+    async def set_game_status(self, game_id: int, status: str):
+        self.session.query(Game).filter(Game.id == game_id).update({'game_status': status})
+
         self.session.commit()

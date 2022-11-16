@@ -242,6 +242,7 @@ class Game(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     match_id = Column(Integer, ForeignKey('matches.id'), nullable=False)
+    winner_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     start_date = Column(TIMESTAMP, nullable=False)
     end_date = Column(TIMESTAMP, nullable=True, unique=True)
     game_status = Column(String(64), nullable=False)

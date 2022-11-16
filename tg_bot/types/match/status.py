@@ -1,5 +1,5 @@
 class MatchStatus:
     WAIT: str = 'WAIT'
-    PROCESS: str = 'PROCESS'
+    PROCESS: str = 'ONLINE'
     FINISH: str = 'FINISH'
     CANCEL: str = 'CANCEL'

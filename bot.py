@@ -177,7 +177,6 @@ async def telegram_bot():
     # await grouping(db_model=db_interaction)
     # await add_opening_matches(db_model=db_interaction)
     # await add_institutions(db=db_interaction)
-    # await add_test_team(db=db_interaction, admin_id=config.tg_bot.admin_id)
 
     bot['db_model'] = db_interaction
     bot['kb'] = kb
