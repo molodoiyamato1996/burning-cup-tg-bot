@@ -10,7 +10,7 @@ from tg_bot.types.request.status import RequestStatus
 
 from tg_bot.misc.parse import parse_callback
 from tg_bot.misc.notify import notify_user
-from tg_bot.misc.matches import grouping, add_opening_matches
+from tg_bot.misc.matches import grouping, add_matches
 
 
 async def view_request_team(call: types.CallbackQuery, state=FSMContext):
@@ -91,7 +91,7 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
             users = await db_model.get_users()
 
             await grouping(db_model=db_model)
-            await add_opening_matches(db_model=db_model)
+            await add_matches(db_model=db_model)
 
             for user in users:
                 await notify_user(

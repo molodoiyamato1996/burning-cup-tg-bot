@@ -25,7 +25,7 @@ from tg_bot.misc.phares import Phrases
 
 from data import schools, colleges
 
-from tg_bot.misc.matches import add_opening_matches, grouping
+from tg_bot.misc.matches import add_matches, grouping
 
 
 logger = logging.getLogger(__name__)
@@ -175,7 +175,7 @@ async def telegram_bot():
     # await add_admin_data(db=db_interaction, admin_id=config.tg_bot.admin_id)
     # await add_tournament_teams(db=db_interaction)
     # await grouping(db_model=db_interaction)
-    # await add_opening_matches(db_model=db_interaction)
+    # await add_matches(db_model=db_interaction)
     # await add_institutions(db=db_interaction)
 
     bot['db_model'] = db_interaction

@@ -222,15 +222,20 @@ class Match(Base):
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
+    next_number_match = Column(Integer, nullable=True)
+    number_match = Column(Integer, nullable=False)
     stage = Column(String(64), nullable=False)
-    group = Column(String(64), nullable=False)
+    group = Column(String(64), nullable=True)
     format = Column(String(64), nullable=False)
     match_status = Column(String(64), nullable=False)
 
-    def __init__(self, first_tournament_team_id: int, second_tournament_team_id: int, stage: str, format_game: str = FormatGame.BO3,
-                 match_status: str = MatchStatus.WAIT, group: str = None):
+    def __init__(self, number_match: int, stage: str, match_status: str, format_game: str = FormatGame.BO3,
+                 group: str = None, next_number_match: int = None,
+                 first_tournament_team_id: int = None, second_tournament_team_id: int = None):
         self.first_tournament_team_id = first_tournament_team_id
         self.second_tournament_team_id = second_tournament_team_id
+        self.number_match = number_match
+        self.next_number_match = next_number_match
         self.stage = stage
         self.group = group
         self.format = format_game

@@ -493,18 +493,22 @@ class DBInteraction(DBClient):
     async def set_data_close_registration(self, registration_id: int, closing_date: float):
         self.session.query(Registration).filter(Registration.id == registration_id).update({'closing_date': closing_date})
 
-    async def add_match(self, first_tournament_team_id: int, stage: str, group: str = None, second_tournament_team_id: int = None):
+    async def add_match(self, number_match: int, stage: str, group: str = None, next_number_match: int = None, first_tournament_team_id: int = None,
+                        second_tournament_team_id: int = None, match_status: str = MatchStatus.WAIT_TEAMS):
         self.session.add(Match(
+            number_match=number_match,
+            next_number_match=next_number_match,
+            stage=stage,
+            group=group,
             first_tournament_team_id=first_tournament_team_id,
             second_tournament_team_id=second_tournament_team_id,
-            stage=stage,
-            group=group
+            match_status=match_status
         ))
 
         self.session.commit()
 
-    async def get_matches(self):
-        matches = self.session.query(Match).filter(Match.match_status == 'WAIT').all()
+    async def get_matches(self, match_status: str):
+        matches = self.session.query(Match).filter(Match.match_status == match_status).all()
 
         return matches
 
@@ -526,7 +530,7 @@ class DBInteraction(DBClient):
         self.session.commit()
 
     async def get_game(self, game_id: int):
-        games = self.session.query(Game).filter(Game.game_id == game_id).first()
+        games = self.session.query(Game).filter(Game.id == game_id).first()
 
         return games
 
@@ -544,3 +548,14 @@ class DBInteraction(DBClient):
         self.session.query(Game).filter(Game.id == game_id).update({'game_status': status})
 
         self.session.commit()
+
+    async def get_match_by_number_match(self, number_match: int):
+        match = self.session.query(Match).filter(Match.number_match == number_match).first()
+
+        return match
+
+    async def match_set_tournament_team(self, team_id: int, position: str, number_match: int):
+        self.session.query(Match).filter(Match.number_match == number_match).update({position: team_id})
+
+        self.session.commit()
+

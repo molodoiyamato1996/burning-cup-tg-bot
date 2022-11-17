@@ -5,6 +5,7 @@ from aiogram.dispatcher import FSMContext
 
 from tg_bot.misc.parse import parse_callback
 from tg_bot.types.game.states import AddGame
+from tg_bot.types.match.status import MatchStatus
 
 
 async def add_game(call: types.CallbackQuery, state=FSMContext):
@@ -13,7 +14,7 @@ async def add_game(call: types.CallbackQuery, state=FSMContext):
 
     db_model = call.bot.get('db_model')
 
-    matches = await db_model.get_matches()
+    matches = await db_model.get_matches(match_status=MatchStatus.TEAM_COMPLETE)
 
     if matches is None:
         await call.message.answer('Нет матчей без даты')
