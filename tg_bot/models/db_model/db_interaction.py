@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_, and_
 
 from tg_bot.models.db_model.models import UserTG, Team, RequestMember, Member, Moderator, Player, TeamPlayer, \
-    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game
+    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game, Day
 from tg_bot.models.db_model.db_client import DBClient
 
 from tg_bot.types.moderator.rule import ModeratorRule
@@ -559,3 +559,15 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
+    async def get_next_game(self):
+        game = self.session.query(Game).filter(Game.game_status == GameStatus.WAIT).order_by(Game.start_date.desc()).first()
+
+        return game
+
+    async def add_day(self, game_id: int, stream_link: str):
+        self.session.add(Day(
+            game_id=game_id,
+            stream_link=stream_link
+        ))
+
+        self.session.commit()

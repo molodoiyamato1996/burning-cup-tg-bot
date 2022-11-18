@@ -92,10 +92,12 @@ async def choice_team(call: types.CallbackQuery, state=FSMContext):
     await db_model.set_game_status(game_id=game_id, status=GameStatus.FINISH)
     await db_model.set_match_status(match_id=game.match_id, status=MatchStatus.FINISH)
 
-    next_match = await db_model.get_match_by_number_match(number_match=match.next_number_match)
+    if match.stage != 'FINAL':
+        next_match = await db_model.get_match_by_number_match(number_match=match.next_number_match)
 
-    if next_match.first_tournament_team_id and next_match.second_tournament_team_id:
-        await db_model.set_match_status(match_id=next_match.id, status=MatchStatus.TEAM_COMPLETE)
+        if next_match.first_tournament_team_id and next_match.second_tournament_team_id:
+            await db_model.set_match_status(match_id=next_match.id, status=MatchStatus.TEAM_COMPLETE)
+
 
     await call.message.answer('Результаты игры, успешно обновлены')
 

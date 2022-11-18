@@ -9,6 +9,7 @@ class AdminKb:
         self.registration = InlineKeyboardButton('Регистрация', callback_data='registration')
         self.tournament_days = InlineKeyboardButton('Турнирые дни', callback_data='tournament_days')
         self.matches = InlineKeyboardButton('Матчи', callback_data='matches')
+        self.days = InlineKeyboardButton('Дни', callback_data='days')
         self.games = InlineKeyboardButton('Игры', callback_data='games')
         self.maps = InlineKeyboardButton('Карты', callback_data='maps')
 
@@ -25,6 +26,27 @@ class AdminKb:
 
         self.view_tournament_teams = InlineKeyboardButton('Показать команды', callback_data='view_teams')
         self.block_team = InlineKeyboardButton('Заблокировать команду', callback_data='block_team')
+
+    async def get_add_day_choice_game_ikb(self, game) -> InlineKeyboardMarkup:
+        add_day_choice_game_ikb = InlineKeyboardMarkup(row_width=1)
+
+        add_day_choice_game_ikb.add(
+            InlineKeyboardButton(f'{game.get("first_tournament_team").photo} vs {game.get("second_tournament_team").photo}', callback_data=f'add_days_choice_game?game_id={game.id}')
+        )
+
+
+        return add_day_choice_game_ikb
+
+    async def get_menu_days_ikb(self) -> InlineKeyboardMarkup:
+        menu_days_ikb = InlineKeyboardMarkup(row_width=1)
+
+        add_day = InlineKeyboardButton('Добавить', callback_data='add_day')
+        delete_day = InlineKeyboardButton('Удалить', callback_data='delete_day')
+        set_day = InlineKeyboardButton('Изменить', callback_data='set_day')
+
+        menu_days_ikb.add(add_day).add(delete_day).add(set_day)
+
+        return menu_days_ikb
 
     async def get_choice_team_ikb(self, first_team, second_team, game_id: int) -> InlineKeyboardMarkup:
         choice_team_ikb = InlineKeyboardMarkup(row_width=1)
@@ -109,6 +131,7 @@ class AdminKb:
             self.tournament_days,
             self.matches,
             self.games,
+            self.days,
             self.maps,
         ]
         start_ikb.add(*start_buttons)

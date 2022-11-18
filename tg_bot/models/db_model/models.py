@@ -262,9 +262,16 @@ class Day(Base):
     __tablename__ = 'days'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    game_id = Column(Integer, ForeignKey('games.id'))
     stream_link = Column(String(256), nullable=False, unique=True)
-    date = Column(Float, nullable=True, unique=True)
+    date = Column(TIMESTAMP, nullable=True, unique=True)
     day_status = Column(String(64), nullable=False)
+
+    def __init__(self, game_id: int, stream_link: str, day_status: str = 'ONLINE', date: datetime = datetime.datetime.now()):
+        self.game_id = game_id
+        self.stream_link = stream_link
+        self.date = date
+        self.day_status = day_status
 
 
 class Map(Base):

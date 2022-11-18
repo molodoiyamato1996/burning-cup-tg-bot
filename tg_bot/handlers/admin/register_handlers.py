@@ -5,6 +5,7 @@ from .matches import register_handlers_matches
 from .registration import register_handlers_registration
 from .games import register_handlers_games
 from .teams import register_handlers_teams
+from .days import register_handlers_menu_days
 
 
 def register_handlers_admin(dp: Dispatcher):
@@ -13,3 +14,4 @@ def register_handlers_admin(dp: Dispatcher):
     register_handlers_registration(dp)
     register_handlers_teams(dp)
     register_handlers_games(dp)
+    register_handlers_menu_days(dp)
