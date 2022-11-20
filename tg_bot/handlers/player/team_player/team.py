@@ -57,7 +57,7 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
         team_ikb = await player_kb.get_team_player_ikb(is_captain=team_player.is_captain, team_id=team.id)
 
         await call.bot.send_photo(chat_id=call.message.chat.id,
-                                  photo=team.photo,
+                                  photo=team.photo_telegram_id,
                                   caption='<b>💠 Комадна</b>\n\n'
                                           f'<b>Имя команды</b>: <code>{team.name}</code>\n',
                                   reply_markup=team_ikb)
@@ -112,7 +112,7 @@ async def back_to_team(call: types.CallbackQuery, state=FSMContext):
     user_id = call.from_user.id
 
     db_model = call.bot.get('db_model')
-    user_kb = call.bot.get('kb').get('user')
+    player_kb = call.bot.get('kb').get('player')
 
     team_player = await db_model.get_team_player(user_id=user_id)
 
@@ -123,7 +123,7 @@ async def back_to_team(call: types.CallbackQuery, state=FSMContext):
 
         team = await db_model.get_team_by_id(team_id=team_id)
         is_tool_park = True if request_team.request_status == RequestStatus.SUCCESS else False
-        team_ikb = await user_kb.get_team_player_ikb(is_captain=team_player.is_captain, team_id=team.id, is_tool_park=is_tool_park)
+        team_ikb = await player_kb.get_team_player_ikb(is_captain=team_player.is_captain, team_id=team.id, is_tool_park=is_tool_park)
 
         await call.bot.edit_message_caption(chat_id=call.message.chat.id,
                                             message_id=call.message.message_id,
@@ -131,7 +131,7 @@ async def back_to_team(call: types.CallbackQuery, state=FSMContext):
                                                     f'<b>Имя команды</b>: <code>{team.name}</code>\n',
                                             reply_markup=team_ikb)
 
-    team_ikb = await user_kb.get_team_ikb()
+    team_ikb = await player_kb.get_team_ikb()
 
     if team_player.team_player_status == TeamPlayerStatus.KICK:
         await call.message.answer('Вы были кикнуты из команды!', reply_markup=team_ikb)

@@ -1,8 +1,6 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.member.states.create_player import CreatePlayer
-
 
 async def cmd_start_member(msg: types.Message, state=FSMContext):
     await state.finish()
@@ -14,8 +12,10 @@ async def cmd_start_member(msg: types.Message, state=FSMContext):
         menu_kb = await user_kb.get_start_kb()
         await msg.answer('Добро пожаловать!', reply_markup=menu_kb)
 
-    await msg.answer(text=phrases.second_step_registration)
-    await state.set_state(CreatePlayer.ENTER_USERNAME)
+    member_kb = msg.bot.get('kb').get('member')
+
+    create_player_ikb = await member_kb.get_create_player_ikb()
+    await msg.answer(phrases.you_need_to_register_to_continue, reply_markup=create_player_ikb)
 
 
 def register_handlers_start(dp: Dispatcher):

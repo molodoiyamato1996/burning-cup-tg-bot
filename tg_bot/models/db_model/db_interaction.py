@@ -20,73 +20,107 @@ class DBInteraction(DBClient):
         self.connect = sessionmaker(bind=self.engine)
         self.session = self.connect()
 
-    async def get_users(self):
-        users = self.session.query(UserTG).all()
-
-        return users
-
     async def add_institution(self, name: str, institution_type: str) -> None:
-        self.session.add(Institution(
-            name=name,
-            institution_type=institution_type
-        ))
-        self.session.commit()
+        try:
+            self.session.add(Institution(
+                name=name,
+                institution_type=institution_type
+            ))
+            self.session.commit()
+
+        except Exception as ex:
+            print(ex)
 
     async def get_institutions(self, institution_type):
-        institutions = self.session.query(Institution).filter(Institution.institution_type == institution_type).all()
+        try:
+            institutions = self.session.query(Institution).filter(
+                Institution.institution_type == institution_type).all()
 
-        return institutions
+            return institutions
+
+        except Exception as ex:
+            print(ex)
 
     async def get_institution(self, institution_id: int, institution_type: str) -> Institution:
-        institution = self.session.query(Institution).filter(
-            and_(Institution.id == institution_id, Institution.institution_type == institution_type)).first()
+        try:
+            institution = self.session.query(Institution).filter(
+                and_(Institution.id == institution_id, Institution.institution_type == institution_type)).first()
 
-        return institution
+            return institution
+
+        except Exception as ex:
+            print(ex)
 
     async def user_exist(self, user_id: int) -> bool:
-        users = self.session.query(UserTG).filter(UserTG.id == user_id).all()
-        user_exist = bool(len(users))
-        return user_exist
+        try:
+            users = self.session.query(UserTG).filter(UserTG.id == user_id).all()
+            user_exist = bool(len(users))
+            return user_exist
+
+        except Exception as ex:
+            print(ex)
 
     async def add_user(self, user_id: int, username):
-        user = UserTG(
-            id=user_id,
-            username=username
-        )
-        self.session.add(user)
-        self.session.commit()
+        try:
+            user = UserTG(
+                id=user_id,
+                username=username
+            )
+            self.session.add(user)
+            self.session.commit()
 
-        return user
+            return user
+        except Exception as ex:
+            print(ex)
 
     async def get_users(self):
-        users = self.session(UserTG).all()
+        try:
+            users = self.session(UserTG).all()
 
-        return users
+            return users
+        except Exception as ex:
+            print(ex)
 
     async def moderator_exist(self, user_id: int) -> bool:
-        moderator = self.session.query(Moderator).filter(Moderator.user_id == user_id).all()
+        try:
+            moderator = self.session.query(Moderator).filter(Moderator.user_id == user_id).all()
 
-        return bool(len(moderator))
+            return bool(len(moderator))
+
+        except Exception as ex:
+            print(ex)
 
     async def add_moderator(self, user_id: int, rule: str):
-        moderator = Moderator(
-            user_id=user_id,
-            rule=rule
-        )
-        self.session.add(moderator)
-        self.session.commit()
+        try:
+            moderator = Moderator(
+                user_id=user_id,
+                rule=rule
+            )
+            self.session.add(moderator)
+            self.session.commit()
+
+        except Exception as ex:
+            print(ex)
 
     async def get_moderators(self, rule: str):
-        moderators = self.session.query(Moderator).filter(
-            or_(Moderator.moderator_rule == rule, Moderator.moderator_rule == ModeratorRule.ALL)).all()
+        try:
+            moderators = self.session.query(Moderator).filter(
+                or_(Moderator.moderator_rule == rule, Moderator.moderator_rule == ModeratorRule.ALL)).all()
 
-        return moderators
+            return moderators
+
+        except Exception as ex:
+            print(ex)
 
     async def request_member_exist(self, user_id: int) -> bool:
-        requests_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).all()
-        request_member_exist = bool(len(requests_member))
+        try:
+            requests_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).all()
+            request_member_exist = bool(len(requests_member))
 
-        return request_member_exist
+            return request_member_exist
+
+        except Exception as ex:
+            print(ex)
 
     async def add_request_member(self, user_id: int, last_name: str, first_name: str, patronymic: str,
                                  document_photo: str, group: str, institution: str,
@@ -225,7 +259,6 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
-
     async def get_players(self, team_players, captain_id: int):
         players = list()
 
@@ -323,7 +356,8 @@ class DBInteraction(DBClient):
 
     async def get_team_players_without_captain(self, team_id: int, captain_id: int):
         players = self.session.query(TeamPlayer).filter(
-            and_(TeamPlayer.team_id == team_id, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE, TeamPlayer.id != captain_id)).all()
+            and_(TeamPlayer.team_id == team_id, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE,
+                 TeamPlayer.id != captain_id)).all()
 
         return players
 
@@ -365,10 +399,11 @@ class DBInteraction(DBClient):
 
         return team.invite_code
 
-    async def add_team(self, name: str, photo: str, invite_code: str) -> Team:
+    async def add_team(self, name: str, photo: str, photo_telegram_id: str, invite_code: str) -> Team:
         self.session.add(Team(
             name=name,
             photo=photo,
+            photo_telegram_id=photo_telegram_id,
             invite_code=invite_code
         ))
         self.session.commit()
@@ -487,13 +522,16 @@ class DBInteraction(DBClient):
             print(ex)
 
     async def set_registration_status(self, registration_id: int, status: str):
-        self.session.query(Registration).filter(Registration.id == registration_id).update({'registration_status': status})
+        self.session.query(Registration).filter(Registration.id == registration_id).update(
+            {'registration_status': status})
         self.session.commit()
 
     async def set_data_close_registration(self, registration_id: int, closing_date: float):
-        self.session.query(Registration).filter(Registration.id == registration_id).update({'closing_date': closing_date})
+        self.session.query(Registration).filter(Registration.id == registration_id).update(
+            {'closing_date': closing_date})
 
-    async def add_match(self, number_match: int, stage: str, group: str = None, next_number_match: int = None, first_tournament_team_id: int = None,
+    async def add_match(self, number_match: int, stage: str, group: str = None, next_number_match: int = None,
+                        first_tournament_team_id: int = None,
                         second_tournament_team_id: int = None, match_status: str = MatchStatus.WAIT_TEAMS):
         self.session.add(Match(
             number_match=number_match,
@@ -560,7 +598,8 @@ class DBInteraction(DBClient):
         self.session.commit()
 
     async def get_next_game(self):
-        game = self.session.query(Game).filter(Game.game_status == GameStatus.WAIT).order_by(Game.start_date.desc()).first()
+        game = self.session.query(Game).filter(Game.game_status == GameStatus.WAIT).order_by(
+            Game.start_date.desc()).first()
 
         return game
 
@@ -571,3 +610,9 @@ class DBInteraction(DBClient):
         ))
 
         self.session.commit()
+
+    async def institution_exist(self, name: str):
+        institution = self.session.query(Institution).filter(Institution.name == name).first()
+
+        if institution is not None:
+            return institution

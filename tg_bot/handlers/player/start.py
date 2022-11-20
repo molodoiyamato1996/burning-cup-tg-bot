@@ -51,4 +51,4 @@ async def back_to_menu(call: types.CallbackQuery, state=FSMContext):
 def register_handlers_start(dp: Dispatcher):
     dp.register_message_handler(cmd_start_player, commands=['start'], state='*', is_player=True)
     dp.register_message_handler(cmd_start_player, text='💠 Меню', state='*', is_player=True)
-    dp.register_message_handler(back_to_menu, text=['back_to_menu'], state='*', is_player=True)
+    dp.register_callback_query_handler(back_to_menu, text=['back_to_menu'], state='*', is_player=True)

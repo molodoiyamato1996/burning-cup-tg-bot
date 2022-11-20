@@ -4,6 +4,19 @@ from aiogram.dispatcher import FSMContext
 from tg_bot.types.member.states.create_player import CreatePlayer
 
 
+async def create_player(call: types.CallbackQuery, state=FSMContext):
+    await call.answer(' ')
+    await state.finish()
+
+    msg_title = '<b>Регистрация</b>\n\n'
+    msg_text = 'Придумайте псевдоним:'
+    text = msg_title + msg_text
+
+    await call.message.answer(text=text)
+
+    await state.set_state(CreatePlayer.ENTER_USERNAME)
+
+
 async def enter_username(msg: types.Message, state=FSMContext):
     username = msg.text
 
@@ -46,7 +59,7 @@ async def enter_fastcup(msg: types.Message, state=FSMContext):
 
     user_id = msg.from_user.id
     db_model = msg.bot.get('db_model')
-    user_kb = msg.bot.get('kb').get('user')
+    player_kb = msg.bot.get('kb').get('player')
     phrases = msg.bot.get('phrases')
 
     if await db_model.validation_player_fastcup(fastcup=fastcup):
@@ -60,12 +73,13 @@ async def enter_fastcup(msg: types.Message, state=FSMContext):
 
     await db_model.add_player(user_id=user_id, username=username, discord=discord, fastcup=fastcup)
 
-    menu_ikb = await user_kb.get_menu_ikb()
+    menu_ikb = await player_kb.get_menu_ikb()
     await msg.answer(text=phrases.menu, reply_markup=menu_ikb)
     await state.finish()
 
 
 def register_handlers_create_player(dp: Dispatcher):
+    dp.register_callback_query_handler(create_player, text=['create_player'], state='*', is_member=True)
     dp.register_message_handler(enter_username, state=CreatePlayer.ENTER_USERNAME, is_member=True)
     dp.register_message_handler(enter_discord, state=CreatePlayer.ENTER_DISCORD, is_member=True)
     dp.register_message_handler(enter_fastcup, state=CreatePlayer.ENTER_FASCTCUP, is_member=True)

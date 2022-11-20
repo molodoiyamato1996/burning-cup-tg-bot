@@ -23,6 +23,11 @@ async def profile(call: types.CallbackQuery, state=FSMContext):
                        f'<b>Псевдоним</b>: <code>{player.username}</code>\n' \
                        f'<b>Дискорд</b>: <code>{player.discord}</code>\n' \
                        f'<b>Фасткап</b>: <code>{player.fastcup}</code>'
+    else:
+        message_text = '<b>👤 Профиль</b>\n\n' \
+                       f'<b>Псевдоним</b>: <code>{player.username}</code>\n' \
+                       f'<b>Дискорд</b>: <code>{player.discord}</code>\n' \
+                       f'<b>Фасткап</b>: <code>{player.fastcup}</code>'
 
     await call.bot.edit_message_text(
         text=message_text,
@@ -36,12 +41,9 @@ async def team(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer(' ')
 
-    user_id = call.from_user.id
+    player_kb = call.bot.get('kb').get('player')
 
-    db_model = call.bot.get('db_model')
-    user_kb = call.bot.get('kb').get('user')
-
-    team_ikb = await user_kb.get_team_ikb()
+    team_ikb = await player_kb.get_team_ikb()
     await call.message.answer('У вас ещё не команды.\n'
                               'Самое время это исправить.', reply_markup=team_ikb)
 

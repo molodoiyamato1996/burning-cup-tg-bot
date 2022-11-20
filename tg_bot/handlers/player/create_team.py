@@ -39,16 +39,19 @@ async def send_team_photo(msg: types.Message, state=FSMContext):
     state_data = await state.get_data()
     team_name = state_data.get('team_name')
 
-    team_photo_src = os.path.abspath('team_photos')
-    team_photo_src = f'{team_photo_src}\{team_name}.png'
-    team_photo = await msg.photo[-1].download(destination_file=team_photo_src)
+    public_src = r'C:\Users\old_cat\Documents\projects\burning-cup\react-app\public'
+    team_photo = f'{team_name}.png'
+    team_photo_src = f'{public_src}\{team_photo}'
+
+    await msg.photo[-1].download(destination_file=team_photo_src)
+    photo_telegram_id = msg.photo[-1].file_id
 
     invite_code = await generate_invite_code()
 
     while await db_model.is_valid_invite_code(invite_code=invite_code):
         invite_code = await generate_invite_code()
 
-    team = await db_model.add_team(name=team_name, photo=team_photo, invite_code=invite_code)
+    team = await db_model.add_team(name=team_name, photo=team_photo, photo_telegram_id=photo_telegram_id, invite_code=invite_code)
 
     await db_model.add_team_player(user_id=user_id, team_id=team.id, is_captain=True)
 
@@ -57,6 +60,7 @@ async def send_team_photo(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_create_team(dp: Dispatcher):
-    dp.register_callback_query_handler(create_team, text=['team?create_team'], state='*')
-    dp.register_message_handler(enter_name_team, state=CreateTeam.ENTER_TEAM_NAME)
-    dp.register_message_handler(send_team_photo, state=CreateTeam.SEND_TEAM_PHOTO, content_types=types.ContentType.PHOTO)
+    dp.register_callback_query_handler(create_team, text=['team?create_team'], state='*', is_moderator=True)
+    dp.register_message_handler(enter_name_team, state=CreateTeam.ENTER_TEAM_NAME, is_moderator=True)
+    dp.register_message_handler(send_team_photo, state=CreateTeam.SEND_TEAM_PHOTO,
+                                content_types=types.ContentType.PHOTO, is_moderator=True)

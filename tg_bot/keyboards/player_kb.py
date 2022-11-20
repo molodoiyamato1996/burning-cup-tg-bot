@@ -63,7 +63,7 @@ class PlayerKb:
     async def get_menu_ikb(self) -> InlineKeyboardMarkup:
         ikb_menu_menu = InlineKeyboardMarkup(row_width=2)
 
-        ikb_menu_menu.add(self.ib_profile).insert(self.ib_team).insert(self.ib_rules).insert(self.ib_support).add(self.ib_back_to_menu)
+        ikb_menu_menu.add(self.ib_profile).insert(self.ib_team).insert(self.ib_rules).insert(self.ib_support)
 
         return ikb_menu_menu
 

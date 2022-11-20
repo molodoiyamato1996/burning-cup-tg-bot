@@ -79,7 +79,12 @@ async def verif_request_member(call: types.CallbackQuery, state=FSMContext):
                                   institution=request_member.institution, member_type=request_member.member_type,
                                   group=request_member.group)
 
-        await notify_user(call=call, text='<b>✅ Верификация успешно пройдена!</b>', chat_id=request_member_user_id)
+        member_kb = call.bot.get('kb').get('member')
+
+        create_player_ikb = await member_kb.get_create_player_ikb()
+
+        await notify_user(call=call, text='<b>✅ Верификация успешно пройдена!</b>', chat_id=request_member_user_id,
+                          reply_markup=create_player_ikb)
 
 
 async def enter_comment_request_student(msg: types.Message, state=FSMContext):
