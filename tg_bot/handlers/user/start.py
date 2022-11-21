@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.user.states.create_request_member import CreateRequestMember
+from tg_bot.types.user.create_request_member import CreateRequestMember
 from tg_bot.types.request.status import RequestStatus
 
 

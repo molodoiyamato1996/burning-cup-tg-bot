@@ -616,3 +616,11 @@ class DBInteraction(DBClient):
 
         if institution is not None:
             return institution
+
+    async def request_team_exist(self, team_id: int):
+        try:
+            request_team = await self.get_request_team_by_team_id(team_id=team_id)
+
+            return request_team if request_team is not None else None
+        except Exception as ex:
+            print(ex)

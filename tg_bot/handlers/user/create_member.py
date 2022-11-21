@@ -2,11 +2,11 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
 from tg_bot.types.member.type import MemberType
-from tg_bot.types.user.states.create_request_member import CreateRequestMember
+from tg_bot.types.user.create_request_member import CreateRequestMember
 from tg_bot.types.moderator.rule import ModeratorRule
 from ...misc.notify import notify_moderators
 from ...misc.parse import parse_callback
-from tg_bot.types.user.institution.type import InstitutionType
+from tg_bot.types.institution import InstitutionType
 
 
 async def choice_member_type(call: types.CallbackQuery, state=FSMContext):

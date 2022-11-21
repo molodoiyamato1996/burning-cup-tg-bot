@@ -5,12 +5,7 @@ from tg_bot.types.team_player.status import TeamPlayerStatus
 from tg_bot.types.request.status import RequestStatus
 
 
-async def profile(call: types.CallbackQuery, state=FSMContext):
-    await state.finish()
-    await call.answer(' ')
-
-
-async def menu_team(call: types.CallbackQuery, state=FSMContext):
+async def menu_team_block(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer(' ')
 
@@ -50,6 +45,19 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
                                       reply_markup=team_ikb)
             return
 
+
+async def menu_team(call: types.CallbackQuery, state=FSMContext):
+    await state.finish()
+    await call.answer(' ')
+
+    user_id = call.from_user.id
+
+    db_model = call.bot.get('db_model')
+    player_kb = call.bot.get('kb').get('player')
+    team_player_kb = call.bot.get('kb').get('team_player')
+
+    team_player = await db_model.get_team_player(user_id=user_id)
+
     if team_player.team_player_status == TeamPlayerStatus.ACTIVE:
         team_id = team_player.team_id
         team = await db_model.get_team_by_id(team_id=team_id)
@@ -71,38 +79,6 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
     elif team_player.team_player_status == TeamPlayerStatus.LEAVE:
         await call.message.answer('И вот Вы снова один\n'
                                   'Что будете делать?', reply_markup=team_ikb)
-
-
-async def team_composition(call: types.CallbackQuery):
-    await call.answer(' ')
-
-    user_id = call.from_user.id
-
-    db_model = call.bot.get('db_model')
-    team_player_kb = call.bot.get('kb').get('team_player')
-
-    team_player = await db_model.get_team_player(user_id=user_id)
-    request_team = await db_model.get_request_team_by_team_id(team_id=team_player.team_id)
-
-    team_id = team_player.team_id
-
-    team_players = await db_model.get_team_players(team_id=team_id)
-
-    if not team_player.is_captain:
-        team_player_captain = await db_model.get_captain_by_team_id(team_id=team_id)
-        captain = await db_model.get_player_by_id(team_player_captain.player_id)
-    else:
-        captain = await db_model.get_player(user_id=user_id)
-
-    players = await db_model.get_players(team_players=team_players, captain_id=captain.id)
-    is_tool_park = True if request_team.request_status == RequestStatus.SUCCESS else False
-    team_composition_ikb = await team_player_kb.get_team_composition_ikb(players=players,
-                                                                         captain=captain,
-                                                                         is_captain=team_player.is_captain,
-                                                                         is_tool_park=is_tool_park)
-
-    await call.bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                             reply_markup=team_composition_ikb)
 
 
 async def back_to_team(call: types.CallbackQuery, state=FSMContext):
@@ -142,7 +118,7 @@ async def back_to_team(call: types.CallbackQuery, state=FSMContext):
                                   'Что будете делать?', reply_markup=team_ikb)
 
 
-def register_handlers_team_menu(dp: Dispatcher):
+def register_handlers_menu_team(dp: Dispatcher):
+    dp.register_callback_query_handler(menu_team_block, text=['team'], state='*', is_team_player=True, is_request_team=True)
     dp.register_callback_query_handler(menu_team, text=['team'], state='*', is_team_player=True)
-    dp.register_callback_query_handler(team_composition, text=['team_composition'], is_team_player=True)
     dp.register_callback_query_handler(back_to_team, text=['back_to_team'], state='*', is_team_player=True)

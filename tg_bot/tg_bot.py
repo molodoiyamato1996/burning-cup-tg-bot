@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from tg_bot.keyboards import kb
-from tg_bot.types.user.institution.type import InstitutionType
+from tg_bot.types.institution import InstitutionType
 from tg_bot.types.moderator.rule import ModeratorRule
 from tg_bot.misc.phares import Phrases
 from tg_bot.models.db_model.db_interaction import DBInteraction

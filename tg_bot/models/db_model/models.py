@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, BigInteger, Float, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, BigInteger, TIMESTAMP
 
 from tg_bot.models.db_model import Base
 
@@ -9,10 +9,9 @@ from tg_bot.types.member.status import MemberStatus
 from tg_bot.types.player.status import PlayerStatus
 from tg_bot.types.team_player.status import TeamPlayerStatus
 from tg_bot.types.team.status import TeamStatus
-from tg_bot.types.team.tournament_team.status import TournamentTeamStatus
+from tg_bot.types.tournament_team import TournamentTeamStatus
 from tg_bot.types.registration.status import RegistrationStatus
 from tg_bot.types.game.format import FormatGame
-from tg_bot.types.match.status import MatchStatus
 
 
 class Institution(Base):
