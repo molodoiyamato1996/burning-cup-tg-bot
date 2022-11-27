@@ -33,12 +33,21 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
     len_team_players = len(team_players)
 
     back_to_team_ikb = await team_player_kb.get_back_to_team_ikb()
-    # Кол-во игроков 5
-    # Каждый игрок должен подтвердить участие в турнире
-    # Статус регистрации должен быть RegisterStatus.ACTIVE
+
     registration_title_text = f'<b>{Emoji.burn} Burning Cup</b>\n\n'
 
-    if len_team_players != 5:
+    tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
+
+    if registration.registration_status == RegistrationStatus.CLOSE:
+        registration_close = 'Регистрация на турнир закончена.'
+        msg_text = registration_title_text + registration_close
+
+        await call.bot.edit_message_text(text=msg_text,
+                                         chat_id=call.message.chat.id,
+                                         message_id=call.message.message_id)
+        return
+    elif len_team_players != 5:
         lacks = 5 - len_team_players
         lacks_text = await get_declination_text(lacks=lacks)
         registration_not_enough_players_text = 'Для участие в турнире необходимо, иметь в команде 5 игроков.\n\n' \
@@ -63,27 +72,7 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
                                              reply_markup=back_to_team_ikb)
             return
 
-    registration = await db_model.get_registration()
-
-    if registration is None:
-        registration_is_none_text = f'Регистрация на турнир ещё не открыта\n' \
-                                    f'{Emoji.time} Ожидайте оповещение'
-        msg_text = registration_title_text + registration_is_none_text
-
-        await call.bot.edit_message_text(text=msg_text,
-                                         chat_id=call.message.chat.id,
-                                         message_id=call.message.message_id)
-
-    elif registration.registration_status == RegistrationStatus.WAIT:
-        current_date = datetime.datetime.now()
-        left = registration.opening_date - current_date
-        registration_wait = f'До начала регистрации осталось {left}' \
-                            f'{Emoji.time} Ожидайте оповещение'
-        msg_text = registration_title_text + registration_wait
-
-        await call.bot.edit_message_text(text=msg_text)
-
-    elif registration.registration_status == RegistrationStatus.OPEN:
+    if registration.registration_status == RegistrationStatus.OPEN:
         registration_open = 'Все игроки команды подтвердили своё участие.\n\n' \
                             'Принять участие в турнире?'
         msg_text = registration_title_text + registration_open
@@ -93,14 +82,6 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
                                          chat_id=call.message.chat.id,
                                          message_id=call.message.message_id,
                                          reply_markup=participate_ikb)
-
-    elif registration.registration_status == RegistrationStatus.CLOSE:
-        registration_close = 'Регистрация на турнир закончена.'
-        msg_text = registration_title_text + registration_close
-
-        await call.bot.edit_message_text(text=msg_text,
-                                         chat_id=call.message.chat.id,
-                                         message_id=call.message.message_id)
 
 
 async def confirm_participate(call: types.CallbackQuery, state=FSMContext):

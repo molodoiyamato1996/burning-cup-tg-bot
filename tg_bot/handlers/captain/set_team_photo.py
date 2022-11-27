@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from tg_bot.types.captain import SetTeamPhoto
 from tg_bot.misc.parse import parse_callback
+from tg_bot.types.request import RequestStatus
 
 
 async def set_team_photo(call: types.CallbackQuery, state=FSMContext):
@@ -11,8 +12,18 @@ async def set_team_photo(call: types.CallbackQuery, state=FSMContext):
 
     props = await parse_callback('set_team_photo', call.data)
     team_id = props.get('team_id')
+    db_model = call.bot.get('db_model')
 
-    await call.message.answer('Отправьте новое фото команды:')
+    request_team = await db_model.get_request_team_by_team_id(team_id=team_id)
+
+    if request_team:
+        if request_team.request_team_status == RequestStatus.WAIT or request_team.request_team_status == RequestStatus.PROCESS:
+            answer_text = 'Во время верификации команды, менять название или изображение команды запрещено'
+            await call.message.answer(answer_text)
+            return
+
+    answer_text = 'Отправьте новое фото команды:'
+    await call.message.answer(answer_text)
     await state.set_state(SetTeamPhoto.SEND_NEW_TEAM_PHOTO)
     async with state.proxy() as data:
         data['team_id'] = team_id

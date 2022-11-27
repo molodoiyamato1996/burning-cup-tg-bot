@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from tg_bot.types.captain import SetTeamName
 from tg_bot.misc.parse import parse_callback
+from tg_bot.types.request import RequestStatus
 
 
 async def set_team_name(call: types.CallbackQuery, state=FSMContext):
@@ -11,8 +12,18 @@ async def set_team_name(call: types.CallbackQuery, state=FSMContext):
 
     props = await parse_callback('set_team_name', call.data)
     team_id = props.get('team_id')
+    db_model = call.bot.get('db_model')
 
-    await call.message.answer('Введите новое имя команды:')
+    request_team = await db_model.get_request_team_by_team_id(team_id=team_id)
+
+    if request_team:
+        if request_team.request_team_status == RequestStatus.WAIT or request_team.request_team_status == RequestStatus.PROCESS:
+            answer_text = 'Во время верификации команды запрещено: менять название, изображение или расформировывать команду!'
+            await call.message.answer(answer_text)
+            return
+
+    answer_text = 'Введите новое имя команды:'
+    await call.message.answer(answer_text)
     await state.set_state(SetTeamName.ENTER_NEW_TEAM_NAME)
     async with state.proxy() as data:
         data['team_id'] = team_id

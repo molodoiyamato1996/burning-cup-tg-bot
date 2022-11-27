@@ -3,6 +3,8 @@ from aiogram.dispatcher import FSMContext
 
 from tg_bot.types.team import TeamStatus
 from tg_bot.types.team_player import TeamPlayerStatus
+from tg_bot.types.request import RequestStatus
+from tg_bot.misc.phares import Phrases
 
 from tg_bot.misc.parse import parse_callback
 
@@ -17,8 +19,21 @@ async def disband_team(call: types.CallbackQuery, state=FSMContext):
 
     team_id = props.get('team_id')
 
+    db_model = call.bot.get('db_model')
+
+    request_team = await db_model.get_request_team_by_team_id(team_id=team_id)
+
+    if request_team:
+        if request_team.request_team_status == RequestStatus.WAIT or request_team.request_team_status == RequestStatus.PROCESS:
+            answer_text = Phrases.captain_verification_block
+            await call.message.answer(answer_text)
+            return
+
     confirm_disband_team_ikb = await team_player_kb.get_confirm_disband_team(team_id=team_id)
-    await call.bot.edit_message_caption(caption='Вы уверенны, что хотите расформировать команду?',
+
+    caption = Phrases.confirm_disband_team
+
+    await call.bot.edit_message_caption(caption=caption,
                                         message_id=call.message.message_id,
                                         chat_id=call.message.chat.id,
                                         reply_markup=confirm_disband_team_ikb)
@@ -40,11 +55,11 @@ async def confirm_disband_team(call: types.CallbackQuery):
 
     await db_model.set_team_status(team_id=team_id, status=TeamStatus.DISBANDED)
 
-    await call.message.answer(text='Команда успешно распущена!', reply_markup=None)
+    answer_text = Phrases.success_disband_team
+
+    await call.message.answer(text=answer_text, reply_markup=None)
 
 
 def register_handlers_dispand_team(dp: Dispatcher):
-    dp.register_callback_query_handler(confirm_disband_team, text_contains=['confirm_disband_team'],
-                                       is_team_player=True, is_captain=True)
-    dp.register_callback_query_handler(disband_team, text_contains=['disband_team'], state='*', is_team_player=True,
-                                       is_captain=True)
+    dp.register_callback_query_handler(confirm_disband_team, text_contains=['confirm_disband_team'], is_captain=True)
+    dp.register_callback_query_handler(disband_team, text_contains=['disband_team'], state='*', is_captain=True)

@@ -87,7 +87,7 @@ class TeamPLayerKb:
 
         return generate_invite_code_ikb
 
-    async def get_team_composition_ikb(self, players: list, captain, is_captain: bool, is_tool_park: bool = None) -> InlineKeyboardMarkup:
+    async def get_team_composition_ikb(self, players: list, captain, is_captain: bool, verification_team: bool) -> InlineKeyboardMarkup:
         team_composition_ikb = InlineKeyboardMarkup(row_width=1)
         captain_ib = InlineKeyboardButton(f'⚜ {captain.username}', url=f'https://t.me/{captain.username}')
         team_composition_ikb.add(captain_ib)
@@ -97,7 +97,7 @@ class TeamPLayerKb:
         for player in players:
             if player is not None:
                 team_composition_ikb.add(InlineKeyboardButton(player.username, url=f'https://t.me/{player.username}'))
-                if is_captain and not is_tool_park:
+                if is_captain and not verification_team:
                     team_composition_ikb.add(
                         InlineKeyboardButton('Кикнуть', callback_data=f'kick_team_player?player_id={player.id}'))
 

@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
 
+from .team_composition import register_handlers_team_composition
 from .participate import register_handlers_participate
 from .disband_team import register_handlers_dispand_team
 from .generate_invite_code import register_handlers_generate_invite_code
@@ -10,6 +11,7 @@ from .set_team_photo import register_handlers_set_team_photo
 
 def register_handlers_captain(dp: Dispatcher):
     register_handlers_participate(dp)
+    register_handlers_team_composition(dp)
     register_handlers_set_team_name(dp)
     register_handlers_set_team_photo(dp)
     register_handlers_dispand_team(dp)

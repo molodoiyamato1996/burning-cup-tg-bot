@@ -1,14 +1,31 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.team_player.states.set_fastcup import SetFastcup
+from tg_bot.types.team_player import SetFastcup
+from tg_bot.types.request import RequestStatus
+from tg_bot.misc.phares import Phrases
 
 
 async def set_fastcup(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer(' ')
 
-    await call.message.answer('Введите новый фасткап:')
+    db_model = call.bot.get('db_model')
+
+    team_player = await db_model.get_team_player(user_id=call.from_user.id)
+
+    if team_player:
+        request_team = await db_model.get_request_team_by_team_id(team_id=team_player.team_id)
+
+        if request_team:
+            if request_team.request_team_status == RequestStatus.WAIT or request_team.request_team_status == RequestStatus.PROCESS:
+                answer_text = Phrases.team_player_verification_block
+                await call.message.answer(answer_text)
+                return
+
+    answer_text = Phrases.enter_new_fastcup
+
+    await call.message.answer(answer_text)
     await state.set_state(SetFastcup.ENTER_NEW_FASTCUP)
 
 
@@ -18,11 +35,16 @@ async def enter_new_fastcup(msg: types.Message, state=FSMContext):
     db_model = msg.bot.get('db_model')
 
     if await db_model.validation_player_fastcup(fastcup=fastcup):
-        await msg.answer('Данный фасткап уже используется')
+        answer_text = Phrases.fastcup_already_in_use
+
+        await msg.answer(answer_text)
         return
 
     await db_model.set_player_fastcup(user_id=msg.from_user.id, fastcup=fastcup)
-    await msg.answer('✅ Фасткап успешно изменён')
+
+    answer_text = Phrases.fastcup_success_changed
+
+    await msg.answer(answer_text)
     await state.finish()
 
 

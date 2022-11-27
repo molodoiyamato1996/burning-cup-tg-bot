@@ -40,3 +40,27 @@ class Phrases:
 
     request_member_fail: str = '<b>❌ Вы не прошли модерацию</b>\n\n' \
                                '<b>По причине:</b>\n'
+
+    confirm_kick_team_player: str = 'Вы уверенны, что хотите кикнуть'
+    success_kick_team_player: str = 'Игрок успешно кикнут!'
+
+    confirm_disband_team: str = 'Вы уверенны, что хотите расформировать команду?'
+    success_disband_team: str = 'Команда успешно распущена!'
+
+    captain_verification_block: str = 'Во время верификации команды запрещено: менять название, изображение, кикать игроков и расформировывать команду!'
+    team_player_verification_block: str = 'Во время верификации команды запрещено: менять псевдоним, дискорд, фасткап и покидать команду!'
+
+    confirm_leave_from_team: str = 'Вы уверенны, что хотите покинуть команду?'
+    success_leave_from_team: str = 'Вы успешно покинули команду!'
+
+    enter_new_username: str = 'Введите новый псевдоним:'
+    username_success_changed: str = '✅ Псевдоним успешно изменён'
+    username_already_in_use: str = 'Данный псевдоним уже используется'
+
+    enter_new_fastcup: str = 'Введите новый Фасткап:'
+    fastcup_success_changed: str = '✅ Фасткап успешно изменён'
+    fastcup_already_in_use: str = 'Данный Фасткап уже используется'
+
+    enter_new_discord: str = 'Введите новый Дискорд:'
+    discord_success_changed: str = '✅ Дискорд успешно изменён'
+    discord_already_in_use: str = 'Данный Дискорд уже используется'

@@ -1,6 +1,7 @@
 from aiogram import Dispatcher, types
-from tg_bot.types.request.status import RequestStatus
 from aiogram.dispatcher import FSMContext
+
+from tg_bot.types.request import RequestStatus
 
 
 async def team_composition(call: types.CallbackQuery, state: FSMContext):
@@ -18,8 +19,7 @@ async def team_composition(call: types.CallbackQuery, state: FSMContext):
 
     team_players = await db_model.get_team_players(team_id=team_id)
 
-    team_player_captain = await db_model.get_captain_by_team_id(team_id=team_id)
-    captain = await db_model.get_player_by_id(team_player_captain.player_id)
+    captain = await db_model.get_player(user_id=user_id)
 
     request_team = await db_model.get_request_team_by_team_id(team_id=team_id)
 
@@ -30,7 +30,6 @@ async def team_composition(call: types.CallbackQuery, state: FSMContext):
             verification_team = True
 
     players = await db_model.get_players(team_players=team_players, captain_id=captain.id)
-
     team_composition_ikb = await team_player_kb.get_team_composition_ikb(players=players,
                                                                          captain=captain,
                                                                          is_captain=team_player.is_captain,
@@ -41,4 +40,4 @@ async def team_composition(call: types.CallbackQuery, state: FSMContext):
 
 
 def register_handlers_team_composition(dp: Dispatcher):
-    dp.register_callback_query_handler(team_composition, text=['team_composition'], is_team_player=True, state='*')
+    dp.register_callback_query_handler(team_composition, text=['team_composition'], is_captain=True, state='*')
