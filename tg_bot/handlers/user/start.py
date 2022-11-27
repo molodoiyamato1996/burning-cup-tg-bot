@@ -1,8 +1,8 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.user.create_request_member import CreateRequestMember
-from tg_bot.types.request.status import RequestStatus
+from tg_bot.types.user import CreateRequestMember
+from tg_bot.types.request import RequestStatus
 
 
 async def cmd_start(msg: types.Message, state=FSMContext):
@@ -50,6 +50,6 @@ async def repeated_request_member(call: types.CallbackQuery, state=FSMContext):
 
 
 def register_handlers_start(dp: Dispatcher):
-    dp.register_message_handler(cmd_start, commands=['start'], state='*', is_member=False)
-    dp.register_message_handler(cmd_start, text='💠 Меню', state='*', is_member=False)
-    dp.register_callback_query_handler(repeated_request_member, text=['repeated_request_member'], state='*', is_member=False)
+    dp.register_message_handler(cmd_start, commands=['start'], state='*', is_member=False, is_admin=False)
+    dp.register_message_handler(cmd_start, text='💠 Меню', state='*', is_member=False, is_admin=False)
+    dp.register_callback_query_handler(repeated_request_member, text=['repeated_request_member'], state='*', is_member=False, is_admin=False)

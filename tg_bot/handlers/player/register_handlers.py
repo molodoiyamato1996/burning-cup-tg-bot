@@ -1,22 +1,20 @@
 from aiogram import Dispatcher
 
-from .team_player import register_handlers_team_player
+from tg_bot.handlers.team_player import register_handlers_team_player
 
-from tg_bot.handlers.player.start import register_handlers_start
-from tg_bot.handlers.player.create_team import register_handlers_create_team
-from tg_bot.handlers.player.join_team import register_handlers_join_team
-from tg_bot.handlers.player.menu import register_handlers_menu
-from tg_bot.handlers.player.set_dicsord import register_handlers_set_discord
-from tg_bot.handlers.player.set_fastcup import register_handlers_set_fastcup
-from tg_bot.handlers.player.set_username import register_handlers_set_username
+from .start import register_handlers_start
+from .menu import register_handlers_menu
+from .menu_rules import register_handlers_menu_rules
+from .menu_support import register_handlers_menu_support
+from .menu_team import register_handlers_menu_team
+from .menu_profile import register_handlers_menu_profile
 
 
 def register_handlers_player(dp: Dispatcher):
     register_handlers_team_player(dp)
     register_handlers_start(dp)
     register_handlers_menu(dp)
-    register_handlers_create_team(dp)
-    register_handlers_join_team(dp)
-    register_handlers_set_username(dp)
-    register_handlers_set_fastcup(dp)
-    register_handlers_set_discord(dp)
+    register_handlers_menu_rules(dp)
+    register_handlers_menu_team(dp)
+    register_handlers_menu_support(dp)
+    register_handlers_menu_profile(dp)

@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters import BoundFilter
 
 
-class TeamPlayerFilter(BoundFilter):
+class RequestTeamFilter(BoundFilter):
     key = 'is_request_team'
 
     def __init__(self, is_request_team=None):

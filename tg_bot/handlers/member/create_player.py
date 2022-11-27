@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.member.states.create_player import CreatePlayer
+from tg_bot.types.member import CreatePlayer
 
 
 async def create_player(call: types.CallbackQuery, state=FSMContext):

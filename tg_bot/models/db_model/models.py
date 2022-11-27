@@ -195,16 +195,34 @@ class TournamentTeam(Base):
         self.tournament_team_status: str = TournamentTeamStatus.ACTIVE
 
 
+class Tournament(Base):
+    __tablename__ = 'tournaments'
+
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = Column(String(256), nullable=False)
+    limit_teams = Column(Integer, nullable=False)
+    date_anons = Column(TIMESTAMP, nullable=False)
+    tournament_status = Column(String(64), nullable=False)
+
+    def __init__(self, name: str, limit_teams: int, date_anons: datetime, tournament_status: str):
+        self.name = name
+        self.limit_teams = limit_teams
+        self.date_anons = date_anons
+        self.tournament_status = tournament_status
+
+
 class Registration(Base):
     __tablename__ = 'registrations'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    tournament_id = Column(Integer, ForeignKey('tournament_teams.id'))
     opening_date = Column(TIMESTAMP, nullable=False)
     closing_date = Column(TIMESTAMP, nullable=True)
     limit_teams = Column(Integer, nullable=True)
     registration_status = Column(String(64), nullable=False)
 
-    def __init__(self, opening_date: datetime, limit_teams: int):
+    def __init__(self, opening_date: datetime, limit_teams: int, tournament_id: int):
+        self.tournament_id = tournament_id
         self.opening_date = opening_date
         self.limit_teams = limit_teams
         self.registration_status = RegistrationStatus.OPEN
@@ -221,7 +239,6 @@ class Match(Base):
     __tablename__ = 'matches'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     next_number_match = Column(Integer, nullable=True)
     number_match = Column(Integer, nullable=False)

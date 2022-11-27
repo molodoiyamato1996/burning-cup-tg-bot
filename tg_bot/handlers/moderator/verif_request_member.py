@@ -1,9 +1,9 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.moderator.states.verif_request_member import VerifRequestMember
-from tg_bot.types.request.status import RequestStatus
-from tg_bot.types.member.type import MemberType
+from tg_bot.types.moderator import VerifRequestMember
+from tg_bot.types.request import RequestStatus
+from tg_bot.types.member import MemberType
 from ...misc.parse import parse_callback
 from ...misc.notify import notify_user
 

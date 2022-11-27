@@ -1,12 +1,11 @@
 import datetime
-import math
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.registration.status import RegistrationStatus
-from tg_bot.types.moderator.states.verif_request_team import VerifRequestTeam
-from tg_bot.types.request.status import RequestStatus
+from tg_bot.types.registration import RegistrationStatus
+from tg_bot.types.moderator import VerifRequestTeam
+from tg_bot.types.request import RequestStatus
 
 from tg_bot.misc.parse import parse_callback
 from tg_bot.misc.notify import notify_user
@@ -39,14 +38,23 @@ async def view_request_team(call: types.CallbackQuery, state=FSMContext):
 
     await db_model.set_request_team_status(request_team_id=request_team.id, status=RequestStatus.PROCESS)
     verif_request_team_ikb = await moderator_kb.get_verif_request_team_ikb(request_team_id=request_team.id)
-    message_text = '<b>Верификация команды</b>\n\n' \
+
+    team_players = await db_model.get_team_players(team_id=request_team.team_id)
+
+    caption = '<b>Верификация команды</b>\n\n' \
                    f'Название команды: <code>{team.name}</code>\n\n' \
-                   f'<b>Верифицировать команду?</b>'
+
+    for team_player in team_players:
+        player = await db_model.get_player_by_id(player_id=team_player.player_id)
+
+        caption += f'{player.discord}\n'
+
+    caption += f'<b>Верифицировать команду?</b>'
 
     await call.bot.send_photo(
         chat_id=call.message.chat.id,
         photo=team.photo,
-        caption=message_text,
+        caption=caption,
         reply_markup=verif_request_team_ikb
     )
 

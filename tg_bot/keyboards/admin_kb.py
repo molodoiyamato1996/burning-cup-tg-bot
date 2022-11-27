@@ -1,17 +1,23 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from tg_bot.types.registration import RegistrationStatus
+
 
 class AdminKb:
     def __init__(self):
         self.tournament_teams = InlineKeyboardButton('Турнирые команды', callback_data='tournament_teams')
-        self.teams = InlineKeyboardButton('Команды', callback_data='teams')
-        self.players = InlineKeyboardButton('Игроки', callback_data='players')
+
         self.registration = InlineKeyboardButton('Регистрация', callback_data='registration')
-        self.tournament_days = InlineKeyboardButton('Турнирые дни', callback_data='tournament_days')
-        self.matches = InlineKeyboardButton('Матчи', callback_data='matches')
         self.days = InlineKeyboardButton('Дни', callback_data='days')
         self.games = InlineKeyboardButton('Игры', callback_data='games')
+        self.matches = InlineKeyboardButton('Матчи', callback_data='matches')
         self.maps = InlineKeyboardButton('Карты', callback_data='maps')
+
+        self.tournaments = InlineKeyboardButton('Турниры', callback_data='tournaments')
+        self.players = InlineKeyboardButton('Игроки', callback_data='players')
+        self.team_players = InlineKeyboardButton('Командные игроки', callback_data='team_players')
+        self.users = InlineKeyboardButton('Пользователи', callback_data='users')
+        self.teams = InlineKeyboardButton('Команды', callback_data='teams')
 
         self.add_match = InlineKeyboardButton('Добавить матч', callback_data='add_match')
         self.get_matches = InlineKeyboardButton('Получить матчи', callback_data='get_matches')
@@ -26,6 +32,44 @@ class AdminKb:
 
         self.view_tournament_teams = InlineKeyboardButton('Показать команды', callback_data='view_teams')
         self.block_team = InlineKeyboardButton('Заблокировать команду', callback_data='block_team')
+
+    async def get_menu_tournament_teams_ikb(self, tournament_teams: list) -> InlineKeyboardMarkup:
+        menu_tournament_teams_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for tournament_team in tournament_teams:
+            menu_tournament_teams_ikb.add(InlineKeyboardButton(
+                text=tournament_team.name, callback_data=f'view_tournament_team?tournament_team_id={tournament_team.id}'
+            ))
+
+        return menu_tournament_teams_ikb
+
+    async def get_menu_tournament_management_ikb(self, registration) -> InlineKeyboardMarkup:
+        menu_tournaments_ikb = InlineKeyboardMarkup(row_width=1)
+
+        menu_tournaments_ikb.add(self.registration)
+
+        if registration:
+            if registration.registration_status != RegistrationStatus.CLOSE:
+                menu_tournaments_ikb.add(self.tournament_teams)
+
+            if registration.registration_status == RegistrationStatus.CLOSE:
+                menu_tournaments_ikb.add(self.days).add(self.games).add(self.matches)
+
+        return menu_tournaments_ikb
+
+    async def get_menu_tournaments_ikb(self, is_tournament: bool) -> InlineKeyboardMarkup:
+        menu_tournaments_ikb = InlineKeyboardMarkup(row_width=1)
+
+        if is_tournament:
+            menu_tournaments_ikb.add(InlineKeyboardButton(
+                'Управление', callback_data='tournament_management'
+            ))
+        else:
+            menu_tournaments_ikb.add(InlineKeyboardButton(
+                'Назначить турнир', callback_data='add_tournament'
+            ))
+
+        return menu_tournaments_ikb
 
     async def get_add_day_choice_game_ikb(self, game) -> InlineKeyboardMarkup:
         add_day_choice_game_ikb = InlineKeyboardMarkup(row_width=1)
@@ -124,15 +168,10 @@ class AdminKb:
         start_ikb = InlineKeyboardMarkup(row_width=1)
 
         start_buttons = [
-            self.tournament_teams,
+            self.tournaments,
             self.teams,
-            self.players,
-            self.registration,
-            self.tournament_days,
-            self.matches,
-            self.games,
-            self.days,
-            self.maps,
+            self.team_players,
+            self.users
         ]
         start_ikb.add(*start_buttons)
 

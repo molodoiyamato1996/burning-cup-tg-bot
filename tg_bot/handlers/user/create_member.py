@@ -1,9 +1,9 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.member.type import MemberType
-from tg_bot.types.user.create_request_member import CreateRequestMember
-from tg_bot.types.moderator.rule import ModeratorRule
+from tg_bot.types.member import MemberType
+from tg_bot.types.user import CreateRequestMember
+from tg_bot.types.moderator import ModeratorRule
 from ...misc.notify import notify_moderators
 from ...misc.parse import parse_callback
 from tg_bot.types.institution import InstitutionType

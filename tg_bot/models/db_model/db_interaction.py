@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import or_, and_
 
 from tg_bot.models.db_model.models import UserTG, Team, RequestMember, Member, Moderator, Player, TeamPlayer, \
-    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game, Day
+    TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game, Day, Tournament
 from tg_bot.models.db_model.db_client import DBClient
 
 from tg_bot.types.moderator.rule import ModeratorRule
@@ -12,6 +12,8 @@ from tg_bot.types.team_player.status import TeamPlayerStatus
 from tg_bot.types.game.format import FormatGame
 from tg_bot.types.match.status import MatchStatus
 from tg_bot.types.game.status import GameStatus
+from tg_bot.types.tournament import TournamentStatus
+from tg_bot.types.registration import RegistrationStatus
 
 
 class DBInteraction(DBClient):
@@ -506,23 +508,16 @@ class DBInteraction(DBClient):
 
         return team_players
 
-    async def add_registration(self, opening_date: datetime, limit_teams: int):
+    async def add_registration(self, opening_date: datetime, limit_teams: int, tournament_id: int):
         self.session.add(Registration(
+            tournament_id=tournament_id,
             opening_date=opening_date,
             limit_teams=limit_teams
         ))
         self.session.commit()
 
-    async def get_registration(self):
-        try:
-            registration = self.session.query(Registration).order_by(Registration.id.desc()).first()
-
-            return registration
-        except Exception as ex:
-            print(ex)
-
-    async def set_registration_status(self, registration_id: int, status: str):
-        self.session.query(Registration).filter(Registration.id == registration_id).update(
+    async def set_registration_status(self, status: str):
+        self.session.query(Registration).order_by(Registration.id.desc()).update(
             {'registration_status': status})
         self.session.commit()
 
@@ -618,9 +613,55 @@ class DBInteraction(DBClient):
             return institution
 
     async def request_team_exist(self, team_id: int):
-        try:
-            request_team = await self.get_request_team_by_team_id(team_id=team_id)
+        request_team = await self.get_request_team_by_team_id(team_id=team_id)
 
-            return request_team if request_team is not None else None
-        except Exception as ex:
-            print(ex)
+        return request_team if request_team is not None else None
+
+    async def add_tournament(self, name: str, date_anons: datetime, limit_teams: int,
+                             tournament_status: str = TournamentStatus.WAIT):
+        self.session.add(Tournament(
+            name=name,
+            date_anons=date_anons,
+            limit_teams=limit_teams,
+            tournament_status=tournament_status
+        ))
+        self.session.commit()
+
+        tournament = await self.get_tournament_by_name(name=name)
+
+        return tournament
+
+    async def get_tournament(self) -> Tournament:
+        tournament = self.session.query(Tournament).filter(
+            Tournament.tournament_status != TournamentStatus.FINISH).order_by(Tournament.id.desc()).first()
+
+        return tournament
+
+    async def get_tournament_by_name(self, name: str):
+        tournament = self.session.query(Tournament).filter(Tournament.name == name).order_by(
+            Tournament.id.desc()).first()
+
+        return tournament
+
+    async def is_tournament(self) -> bool:
+        is_tournament = self.session.query(Tournament).filter(
+            Tournament.tournament_status != TournamentStatus.FINISH).order_by(Tournament.id.desc()).first()
+
+        if is_tournament is None:
+            return False
+
+        return True
+
+    async def is_registration(self) -> bool:
+        is_registration = self.session.query(Registration).filter(
+            Registration.registration_status != RegistrationStatus.CLOSE).order_by(Registration.id.desc()).first()
+
+        if is_registration is None:
+            return False
+
+        return True
+
+    async def get_registration(self) -> Registration:
+        registration = self.session.query(Registration).order_by(Registration.id.desc()).first()
+
+        return registration
