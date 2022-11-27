@@ -23,7 +23,7 @@ class AdminKb:
         self.get_matches = InlineKeyboardButton('Получить матчи', callback_data='get_matches')
         self.set_match = InlineKeyboardButton('Изменить матч', callback_data='set_match')
 
-        self.start_registration = InlineKeyboardButton('Назначить регистрацию', callback_data='start_registration')
+        self.open_registration = InlineKeyboardButton('Назначить регистрацию', callback_data='open_registration')
         self.set_registration = InlineKeyboardButton('Изменить регистрацию', callback_data='set_registration')
         self.cancel_registration = InlineKeyboardButton('Отменить регистрацию', callback_data='cancel_registration')
         self.view_registration_conf = InlineKeyboardButton('Посмотреть регистрацию', callback_data='view_registration')
@@ -49,7 +49,7 @@ class AdminKb:
         menu_tournaments_ikb.add(self.registration)
 
         if registration:
-            if registration.registration_status != RegistrationStatus.CLOSE:
+            if registration.registration_status != RegistrationStatus.WAIT:
                 menu_tournaments_ikb.add(self.tournament_teams)
 
             if registration.registration_status == RegistrationStatus.CLOSE:
@@ -190,17 +190,18 @@ class AdminKb:
 
         return matches_ikb
 
-    async def get_registration_ikb(self, is_registration: bool) -> InlineKeyboardMarkup:
+    async def get_registration_ikb(self, registration) -> InlineKeyboardMarkup:
         registration_ikb = InlineKeyboardMarkup(row_width=1)
 
         registration_buttons = []
 
-        if is_registration:
-            registration_buttons.append(self.set_registration)
-            registration_buttons.append(self.cancel_registration)
+        if registration:
+            if registration.registration_status != RegistrationStatus.CLOSE:
+                registration_buttons.append(self.set_registration)
+                registration_buttons.append(self.cancel_registration)
             registration_buttons.append(self.view_registration_conf)
         else:
-            registration_buttons.append(self.start_registration)
+            registration_buttons.append(self.open_registration)
 
         registration_ikb.add(*registration_buttons)
 

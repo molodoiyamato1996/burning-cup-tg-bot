@@ -508,11 +508,10 @@ class DBInteraction(DBClient):
 
         return team_players
 
-    async def add_registration(self, opening_date: datetime, limit_teams: int, tournament_id: int):
+    async def add_registration(self, opening_date: datetime, tournament_id: int):
         self.session.add(Registration(
             tournament_id=tournament_id,
             opening_date=opening_date,
-            limit_teams=limit_teams
         ))
         self.session.commit()
 
@@ -661,7 +660,7 @@ class DBInteraction(DBClient):
 
         return True
 
-    async def get_registration(self) -> Registration:
-        registration = self.session.query(Registration).order_by(Registration.id.desc()).first()
+    async def get_registration(self, tournament_id: int) -> Registration:
+        registration = self.session.query(Registration).filter(Registration.tournament_id == tournament_id).order_by(Registration.id.desc()).first()
 
         return registration

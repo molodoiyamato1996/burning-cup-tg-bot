@@ -11,7 +11,8 @@ async def menu_management(call: types.CallbackQuery, state=FSMContext):
     admin_kb = call.bot.get('kb').get('admin')
     db_model = call.bot.get('db_model')
 
-    registration = await db_model.get_registration()
+    tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
 
     menu_tournament_management_ikb = await admin_kb.get_menu_tournament_management_ikb(registration=registration)
 

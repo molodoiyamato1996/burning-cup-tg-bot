@@ -11,9 +11,10 @@ async def menu_registration(call: types.CallbackQuery, state=FSMContext):
     db_model = call.bot.get('db_model')
     admin_kb = call.bot.get('kb').get('admin')
 
-    registration = await db_model.is_registration()
+    tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
 
-    registration_ikb = await admin_kb.get_registration_ikb(is_registration=registration)
+    registration_ikb = await admin_kb.get_registration_ikb(registration=registration)
 
     await call.message.answer(text='<b>Регистрации</b>\n\n'
                                    'Выберите действие:',
@@ -27,14 +28,10 @@ async def back_to_registration(call: types.CallbackQuery, state=FSMContext):
     db_model = call.bot.get('db_model')
     admin_kb = call.bot.get('kb').get('admin')
 
-    registration = await db_model.get_registration()
+    tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
 
-    if registration is None:
-        is_registration = False
-    else:
-        is_registration = True if registration.registration_status == RegistrationStatus.OPEN else False
-
-    registration_ikb = await admin_kb.get_registration_ikb(is_registration=is_registration)
+    registration_ikb = await admin_kb.get_registration_ikb(registration=registration)
 
     await call.bot.edit_message_text(
         text='<b>Регистрации</b>\n\n'

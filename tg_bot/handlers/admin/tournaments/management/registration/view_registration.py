@@ -13,8 +13,8 @@ async def view_registration(call: types.CallbackQuery, state=FSMContext):
     db_model = call.bot.get('db_model')
     admin_kb = call.bot.get('kb').get('admin')
 
-    registration = await db_model.get_registration()
     tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
 
     opening_date = registration.opening_date
 

@@ -218,13 +218,11 @@ class Registration(Base):
     tournament_id = Column(Integer, ForeignKey('tournament_teams.id'))
     opening_date = Column(TIMESTAMP, nullable=False)
     closing_date = Column(TIMESTAMP, nullable=True)
-    limit_teams = Column(Integer, nullable=True)
     registration_status = Column(String(64), nullable=False)
 
-    def __init__(self, opening_date: datetime, limit_teams: int, tournament_id: int):
+    def __init__(self, opening_date: datetime, tournament_id: int):
         self.tournament_id = tournament_id
         self.opening_date = opening_date
-        self.limit_teams = limit_teams
         self.registration_status = RegistrationStatus.OPEN
 
 

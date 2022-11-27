@@ -4,6 +4,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
 from tg_bot.types.tournament import AddTournament, TournamentStatus, TournamentPhrases
+from tg_bot.misc.is_number import is_number
 
 
 # Назначить турнир -> ввести название турнира -> ввести лимит команд -> ввести дату анонса (?дату анонса можно будет отредактировать)
@@ -33,6 +34,9 @@ async def enter_limit_teams(msg: types.Message, state=FSMContext):
     limit_teams = msg.text
 
     # проверка на число
+
+    if not await is_number(limit_teams):
+        return
 
     async with state.proxy() as data:
         data['limit_teams'] = limit_teams
@@ -77,7 +81,7 @@ async def enter_date_anons(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_add_tournament(dp: Dispatcher):
-    dp.register_callback_query_handler(add_tournament, text=['add_tournament'], state='*', is_admin=True, is_tournament=False)
-    dp.register_message_handler(enter_name_tournament, state=AddTournament.ENTER_NAME_TOURNAMENT, is_admin=True, is_tournament=False)
-    dp.register_message_handler(enter_limit_teams, state=AddTournament.ENTER_LIMIT_TEAMS, is_admin=True, is_tournament=False)
-    dp.register_message_handler(enter_date_anons, state=AddTournament.ENTER_DATE_ANONS, is_admin=True, is_tournament=False)
+    dp.register_callback_query_handler(add_tournament, text=['add_tournament'], state='*', is_admin=True)
+    dp.register_message_handler(enter_name_tournament, state=AddTournament.ENTER_NAME_TOURNAMENT, is_admin=True)
+    dp.register_message_handler(enter_limit_teams, state=AddTournament.ENTER_LIMIT_TEAMS, is_admin=True)
+    dp.register_message_handler(enter_date_anons, state=AddTournament.ENTER_DATE_ANONS, is_admin=True)
