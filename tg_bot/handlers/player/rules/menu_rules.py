@@ -8,4 +8,4 @@ async def menu_rules(call: types.CallbackQuery, state=FSMContext):
 
 
 def register_handlers_menu(dp: Dispatcher):
-    dp.register_callback_query_handler(menu_rules, text=['menu_rules'], state='*', is_player=True)
+    dp.register_callback_query_handler(menu_rules, text=['rules'], state='*', is_player=True)

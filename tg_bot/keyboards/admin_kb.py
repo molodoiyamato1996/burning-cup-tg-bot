@@ -8,7 +8,10 @@ class AdminKb:
         self.tournament_teams = InlineKeyboardButton('Турнирые команды', callback_data='tournament_teams')
 
         self.registration = InlineKeyboardButton('Регистрация', callback_data='registration')
+
         self.days = InlineKeyboardButton('Дни', callback_data='days')
+        self.back_to_days = InlineKeyboardButton('Вернуться', callback_data='back_to_days')
+
         self.games = InlineKeyboardButton('Игры', callback_data='games')
         self.matches = InlineKeyboardButton('Матчи', callback_data='matches')
         self.maps = InlineKeyboardButton('Карты', callback_data='maps')
@@ -32,6 +35,37 @@ class AdminKb:
 
         self.view_tournament_teams = InlineKeyboardButton('Показать команды', callback_data='view_teams')
         self.block_team = InlineKeyboardButton('Заблокировать команду', callback_data='block_team')
+
+        self.set_anons_date = InlineKeyboardButton('Дату анонса', callback_data='set_date_anons')
+        self.set_limit_teams = InlineKeyboardButton('Ограничение команд', callback_data='set_limit_teams')
+        self.set_tournament_status = InlineKeyboardButton('Статус', callback_data='set_tournament_status')
+
+    async def get_menu_players_ikb(self, players: list) -> InlineKeyboardMarkup:
+        menu_players_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for player in players:
+            menu_players_ikb.add(
+                InlineKeyboardButton(text=player.username, callback_data=f'view_player?player_id={player.id}')
+            )
+
+        return menu_players_ikb
+
+    async def get_menu_teams_ikb(self, teams: list) -> InlineKeyboardMarkup:
+        menu_teams_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for team in teams:
+            menu_teams_ikb.add(
+                InlineKeyboardButton(team.title, callback_data=f'view_team?team_id={team.id}')
+            )
+
+        return menu_teams_ikb
+
+    async def get_set_tournament_ikb(self) -> InlineKeyboardMarkup:
+        set_tournament_ikb = InlineKeyboardMarkup(row_width=1)
+
+        set_tournament_ikb.add(self.set_anons_date).add(self.set_limit_teams).add(self.set_tournament_status)
+
+        return set_tournament_ikb
 
     async def get_menu_tournament_teams_ikb(self, tournament_teams: list) -> InlineKeyboardMarkup:
         menu_tournament_teams_ikb = InlineKeyboardMarkup(row_width=1)
@@ -81,14 +115,28 @@ class AdminKb:
 
         return add_day_choice_game_ikb
 
-    async def get_menu_days_ikb(self) -> InlineKeyboardMarkup:
+    async def get_confirm_finish_day_ikb(self) -> InlineKeyboardMarkup:
+        menu_confirm_finish_day_ikb = InlineKeyboardMarkup(row_width=1)
+
+        button_answer_yes = InlineKeyboardButton(text='Да', callback_data='confirm_finish_day')
+        button_answer_no = InlineKeyboardButton(text='Нет', callback_data='back_to_days')
+
+        menu_confirm_finish_day_ikb.add(button_answer_yes).add(button_answer_no)
+
+        return menu_confirm_finish_day_ikb
+
+    async def get_menu_days_ikb(self, day) -> InlineKeyboardMarkup:
         menu_days_ikb = InlineKeyboardMarkup(row_width=1)
 
         add_day = InlineKeyboardButton('Добавить', callback_data='add_day')
+        finish_day = InlineKeyboardButton('Закончить', callback_data='finish_day')
         delete_day = InlineKeyboardButton('Удалить', callback_data='delete_day')
         set_day = InlineKeyboardButton('Изменить', callback_data='set_day')
 
-        menu_days_ikb.add(add_day).add(delete_day).add(set_day)
+        if day:
+            menu_days_ikb.add(delete_day).add(set_day).add(finish_day)
+        else:
+            menu_days_ikb.add(add_day)
 
         return menu_days_ikb
 
@@ -170,7 +218,7 @@ class AdminKb:
         start_buttons = [
             self.tournaments,
             self.teams,
-            self.team_players,
+            self.players,
             self.users
         ]
         start_ikb.add(*start_buttons)

@@ -106,7 +106,7 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
                     text='Регистрация на турнир закончена <b>🔥 Burning Cup</b>\n\n'
                          'Команды и матчи можете посмотреть на сайте https://www.burning-cup.com',
                     chat_id=user.id,
-                    call=call
+                    bot=call.bot
                 )
 
         await db_model.set_request_team_status(request_team_id=request_team_id, status=RequestStatus.SUCCESS)
@@ -117,7 +117,7 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
         await notify_user(
             text='✅ Ваша команда приняла участие в турнире <b>🔥 Burning Cup</b>',
             chat_id=member_captain.user_id,
-            call=call
+            bot=call.bot
         )
     else:
         await call.message.answer('Введите причину отказа')
@@ -153,7 +153,7 @@ async def enter_comment_request_team(msg: types.Message, state=FSMContext):
         chat_id=member.user_id,
         text=message_text,
         reply_markup=set_team_ikb,
-        msg=msg
+        bot=msg.bot
     )
 
 

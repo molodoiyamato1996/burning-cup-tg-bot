@@ -7,11 +7,12 @@ from tg_bot.types.player.status import PlayerStatus
 async def cmd_start_player(msg: types.Message, state=FSMContext):
     await state.finish()
 
+    bot = msg.bot
     user_id = msg.from_user.id
-    db_model = msg.bot.get('db_model')
-    user_kb = msg.bot.get('kb').get('user')
-    player_kb = msg.bot.get('kb').get('player')
-    phrases = msg.bot.get('phrases')
+    db_model = bot.get('db_model')
+    user_kb = bot.get('kb').get('user')
+    player_kb = bot.get('kb').get('player')
+    phrases = bot.get('phrases')
 
     if msg.text != '💠 Меню':
         menu_kb = await user_kb.get_start_kb()

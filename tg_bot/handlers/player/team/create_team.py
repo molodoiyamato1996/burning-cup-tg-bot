@@ -3,7 +3,7 @@ import os
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.player.states.create_team import CreateTeam
+from tg_bot.types.player import CreateTeam
 from tg_bot.misc.generate_invite_code import generate_invite_code
 
 
@@ -60,7 +60,7 @@ async def send_team_photo(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_create_team(dp: Dispatcher):
-    dp.register_callback_query_handler(create_team, text=['team?create_team'], state='*', is_moderator=True)
-    dp.register_message_handler(enter_name_team, state=CreateTeam.ENTER_TEAM_NAME, is_moderator=True)
+    dp.register_callback_query_handler(create_team, text=['team?create_team'], state='*', is_player=True)
+    dp.register_message_handler(enter_name_team, state=CreateTeam.ENTER_TEAM_NAME, is_player=True)
     dp.register_message_handler(send_team_photo, state=CreateTeam.SEND_TEAM_PHOTO,
-                                content_types=types.ContentType.PHOTO, is_moderator=True)
+                                content_types=types.ContentType.PHOTO, is_player=True)

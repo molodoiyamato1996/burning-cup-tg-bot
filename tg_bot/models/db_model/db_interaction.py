@@ -7,13 +7,14 @@ from tg_bot.models.db_model.models import UserTG, Team, RequestMember, Member, M
     TeamStatus, Institution, RequestTeam, TournamentTeam, Registration, Match, Game, Day, Tournament
 from tg_bot.models.db_model.db_client import DBClient
 
-from tg_bot.types.moderator.rule import ModeratorRule
-from tg_bot.types.team_player.status import TeamPlayerStatus
+from tg_bot.types.moderator import ModeratorRule
+from tg_bot.types.team_player import TeamPlayerStatus
 from tg_bot.types.game.format import FormatGame
-from tg_bot.types.match.status import MatchStatus
-from tg_bot.types.game.status import GameStatus
+from tg_bot.types.match import MatchStatus
+from tg_bot.types.game import GameStatus
 from tg_bot.types.tournament import TournamentStatus
 from tg_bot.types.registration import RegistrationStatus
+from tg_bot.types.days import DayStatus
 
 
 class DBInteraction(DBClient):
@@ -209,12 +210,13 @@ class DBInteraction(DBClient):
 
         return player_exist
 
-    async def add_player(self, user_id: int, username: str, discord: str, fastcup: str):
+    async def add_player(self, user_id: int, username: str, tg_username: str, discord: str, fastcup: str):
         member = await self.get_member(user_id=user_id)
 
         self.session.add(Player(
             member_id=member.id,
             username=username,
+            tg_username=tg_username,
             discord=discord,
             fastcup=fastcup
         ))
@@ -230,7 +232,7 @@ class DBInteraction(DBClient):
 
         return player
 
-    async def get_player(self, user_id: int):
+    async def get_player(self, user_id: int) -> Player:
         member = await self.get_member(user_id=user_id)
 
         if member is None:
@@ -261,13 +263,8 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
-    async def get_players(self, team_players, captain_id: int):
-        players = list()
-
-        for team_player in team_players:
-            player = self.session.query(Player).filter(
-                and_(Player.id == team_player.player_id, Player.id != captain_id)).first()
-            players.append(player)
+    async def get_players(self):
+        players = self.session.query(Player).all()
 
         return players
 
@@ -301,7 +298,12 @@ class DBInteraction(DBClient):
 
         return is_team_player
 
-    async def team_player_exist(self, user_id: int):
+    async def team_player_exist(self, user_id: int) -> bool:
+        player_exist = await self.player_exist(user_id=user_id)
+
+        if not player_exist:
+            return False
+
         player = await self.get_player(user_id=user_id)
 
         team_players = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player.id).all()
@@ -636,6 +638,19 @@ class DBInteraction(DBClient):
 
         return tournament
 
+    async def set_tournament(self, tournament_id: int, limit_teams: int = None, anons_date: datetime = None,
+                             tournament_status: str = None):
+        update = {}
+
+        if limit_teams:
+            update = {'limit_teams': limit_teams}
+        elif anons_date:
+            update = {'anons_date': anons_date}
+        elif tournament_status:
+            update = {'anons_date': tournament_status}
+
+        self.session.query(Tournament).filter(Tournament.id == tournament_id).update(update)
+
     async def get_tournament_by_name(self, name: str):
         tournament = self.session.query(Tournament).filter(Tournament.name == name).order_by(
             Tournament.id.desc()).first()
@@ -643,8 +658,8 @@ class DBInteraction(DBClient):
         return tournament
 
     async def is_tournament(self) -> bool:
-        is_tournament = self.session.query(Tournament).filter(
-            Tournament.tournament_status != TournamentStatus.FINISH).order_by(Tournament.id.desc()).first()
+        is_tournament = self.session.query(Tournament).filter(or_(
+            Tournament.tournament_status != TournamentStatus.FINISH, Tournament.tournament_status != TournamentStatus.CANCEL)).order_by(Tournament.id.desc()).first()
 
         if is_tournament is None:
             return False
@@ -664,3 +679,18 @@ class DBInteraction(DBClient):
         registration = self.session.query(Registration).filter(Registration.tournament_id == tournament_id).order_by(Registration.id.desc()).first()
 
         return registration
+
+    async def get_day(self) -> Day:
+        day = self.session.query(Day).filter(Day.day_status == DayStatus.ACTIVE).order_by(Day.id.desc()).first()
+
+        return day
+
+    async def set_day_status(self, day_id: int, status: str):
+        self.session.query(Day).filter(Day.id == day_id).update({'day_status': status})
+
+        self.session.commit()
+
+    async def get_teams(self):
+        teams = self.session.query(Team).filter(Team.team_status == TeamStatus.ACTIVE).all()
+
+        return teams

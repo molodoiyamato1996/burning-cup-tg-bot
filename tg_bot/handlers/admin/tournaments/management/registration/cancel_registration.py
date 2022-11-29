@@ -10,7 +10,8 @@ async def cancel_registration(call: types.CallbackQuery, state=FSMContext):
 
     db_model = call.bot.get('db_model')
 
-    registration = await db_model.get_registration()
+    tournament = await db_model.get_tournament()
+    registration = await db_model.get_registration(tournament_id=tournament.id)
 
     await db_model.set_registration_status(registration_id=registration.id, status=RegistrationStatus.CANCEL)
     await call.bot.edit_message_text(

@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.player.states.join_team import JoinTeam
+from tg_bot.types.player import JoinTeam
 
 
 async def join_team(call: types.CallbackQuery, state=FSMContext):

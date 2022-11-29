@@ -64,3 +64,15 @@ class Phrases:
     enter_new_discord: str = 'Введите новый Дискорд:'
     discord_success_changed: str = '✅ Дискорд успешно изменён'
     discord_already_in_use: str = 'Данный Дискорд уже используется'
+
+    day_title: str = '<b>День</b>\n\n'
+
+    choice_action: str = 'Выберите действие:'
+
+    confirm_finish_day: str = 'Вы уверенны, что хотите закончить день?'
+    success_finish_day: str = 'День успешно завершён'
+
+    tournament_title: str = '<b>Турнир</b>\n\n'
+
+    teams_title: str = '<b>Команды</b>\n\n'
+    players_title: str = '<b>Игроки</b>\n\n'

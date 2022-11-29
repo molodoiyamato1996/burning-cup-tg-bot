@@ -29,7 +29,18 @@ async def team_composition(call: types.CallbackQuery, state: FSMContext):
         if request_team.request_team_status == RequestStatus.WAIT or request_team.request_team_status == RequestStatus.PROCESS:
             verification_team = True
 
-    players = await db_model.get_players(team_players=team_players, captain_id=captain.id)
+    players = []
+
+    for team_player in team_players:
+        if not team_player.is_captain:
+            player = await db_model.get_player_by_id(player_id=team_player.player_id)
+            players.append({
+                'id': player.id,
+                'username': player.username,
+                'tg_username': player.tg_username,
+                'is_participate': team_player.is_participate
+            })
+
     team_composition_ikb = await team_player_kb.get_team_composition_ikb(players=players,
                                                                          captain=captain,
                                                                          is_captain=team_player.is_captain,

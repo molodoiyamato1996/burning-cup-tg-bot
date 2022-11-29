@@ -1,11 +1,42 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from tg_bot.misc.emoji import Emoji
+
 
 class TeamPLayerKb:
     def __init__(self) -> None:
+        self.ib_back_to_menu = InlineKeyboardButton('Вернуться', callback_data='back_to_menu')
         self.ib_back_to_team = InlineKeyboardButton(text='Вернуться', callback_data='back_to_team')
 
         self.ib_participate = InlineKeyboardButton('Принять участие', callback_data='participate')
+
+    async def get_team_player_ikb(self, is_captain: bool = False, team_id: int = None, is_tool_park: bool = None, is_participate: bool = False) -> InlineKeyboardMarkup:
+        team_ikb = InlineKeyboardMarkup(row_width=1)
+
+        composition = InlineKeyboardButton('Состав', callback_data='team_composition')
+        team_ikb.add(composition)
+
+        if is_tool_park:
+            return team_ikb
+
+        if is_captain:
+            invite_code = InlineKeyboardButton('Код приглашения', callback_data=f'team_invite_code?team_id={team_id}')
+            disband_team = InlineKeyboardButton('Расформировать команду', callback_data=f'disband_team?team_id={team_id}')
+
+            team_ikb.add(invite_code).add(disband_team)
+
+        if not is_captain:
+            leave_the_team_ib = InlineKeyboardButton('Покинуть команду', callback_data='leave_the_team')
+
+            if not is_participate:
+                participate = InlineKeyboardButton('🔥 Принять участие', callback_data='participate')
+                team_ikb.add(participate)
+
+            team_ikb.add(leave_the_team_ib)
+
+        team_ikb.add(self.ib_back_to_menu)
+
+        return team_ikb
 
     async def get_participate_ikb(self) -> InlineKeyboardMarkup:
         participate_ikb = InlineKeyboardMarkup(row_width=1)
@@ -89,17 +120,18 @@ class TeamPLayerKb:
 
     async def get_team_composition_ikb(self, players: list, captain, is_captain: bool, verification_team: bool) -> InlineKeyboardMarkup:
         team_composition_ikb = InlineKeyboardMarkup(row_width=1)
-        captain_ib = InlineKeyboardButton(f'⚜ {captain.username}', url=f'https://t.me/{captain.username}')
+        captain_ib = InlineKeyboardButton(f'⚜ {captain.username}', url=f'https://t.me/{captain.tg_username}')
         team_composition_ikb.add(captain_ib)
 
-        count_players = len(players) - 1
+        count_players = len(players)
 
         for player in players:
             if player is not None:
-                team_composition_ikb.add(InlineKeyboardButton(player.username, url=f'https://t.me/{player.username}'))
+                status = Emoji.burn if player.get('is_participate') else ''
+                team_composition_ikb.add(InlineKeyboardButton(f"{player.get('username')} {status}", url=f'https://t.me/{player.get("tg_username")}'))
                 if is_captain and not verification_team:
                     team_composition_ikb.add(
-                        InlineKeyboardButton('Кикнуть', callback_data=f'kick_team_player?player_id={player.id}'))
+                        InlineKeyboardButton('Кикнуть', callback_data=f'kick_team_player?player_id={player.get("id")}'))
 
         for i in range(4 - count_players):
             team_composition_ikb.add(InlineKeyboardButton('Пусто', callback_data=' '))

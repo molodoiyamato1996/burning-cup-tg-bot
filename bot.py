@@ -1,8 +1,8 @@
 import asyncio
-import datetime
+
 import logging
 
-from tg_bot import TgBot, register_all_handlers, register_all_filters, kb, Base, DBInteraction
+from tg_bot import TgBot, register_all_handlers, register_all_filters
 from tg_bot.config import load_config
 from data import schools, colleges
 

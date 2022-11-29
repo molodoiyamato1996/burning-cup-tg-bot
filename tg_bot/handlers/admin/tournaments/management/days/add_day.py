@@ -80,6 +80,6 @@ async def send_stream_link(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_add_day(dp: Dispatcher):
-    dp.register_callback_query_handler(add_day, text=['add_day'], state='*')
-    dp.register_callback_query_handler(choice_game, state=AddDay.CHOICE_GAME)
-    dp.register_message_handler(send_stream_link, state=AddDay.ENTER_STREAM_LINK)
+    dp.register_callback_query_handler(add_day, text=['add_day'], state='*', is_admin=True)
+    dp.register_callback_query_handler(choice_game, state=AddDay.CHOICE_GAME, is_admin=True)
+    dp.register_message_handler(send_stream_link, state=AddDay.ENTER_STREAM_LINK, is_admin=True)

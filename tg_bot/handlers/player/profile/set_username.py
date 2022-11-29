@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.team_player.states import SetUsername
+from tg_bot.types.team_player import SetUsername
 from tg_bot.types.request import RequestStatus
 from tg_bot.misc.phares import Phrases
 

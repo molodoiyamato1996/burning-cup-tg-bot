@@ -1,1 +1,1 @@
-from .register_handlers import register_handlers_team_players
+from .register_handlers import register_handlers_players

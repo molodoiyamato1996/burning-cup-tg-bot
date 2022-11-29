@@ -83,7 +83,7 @@ async def verif_request_member(call: types.CallbackQuery, state=FSMContext):
 
         create_player_ikb = await member_kb.get_create_player_ikb()
 
-        await notify_user(call=call, text='<b>✅ Верификация успешно пройдена!</b>', chat_id=request_member_user_id,
+        await notify_user(bot=call.bot, text='<b>✅ Верификация успешно пройдена!</b>', chat_id=request_member_user_id,
                           reply_markup=create_player_ikb)
 
 
@@ -99,7 +99,7 @@ async def enter_comment_request_student(msg: types.Message, state=FSMContext):
     await db_model.set_request_member_comment(user_id=request_user_id, comment=response_verif_request)
     user_kb = msg.bot.get('kb').get('user')
     repeated_request_member_ikb = await user_kb.get_repeated_request_member_ikb()
-    await notify_user(msg=msg, text=f'<b>❌ Вы не прошли верификацию</b>\n\n'
+    await notify_user(bot=msg.bot, text=f'<b>❌ Вы не прошли верификацию</b>\n\n'
                                     f'<b>По причине:</b>\n{response_verif_request}', chat_id=request_user_id, reply_markup=repeated_request_member_ikb)
 
     await state.finish()

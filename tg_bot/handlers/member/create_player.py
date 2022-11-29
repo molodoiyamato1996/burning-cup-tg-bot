@@ -71,7 +71,7 @@ async def enter_fastcup(msg: types.Message, state=FSMContext):
     username = state_data.get('username')
     discord = state_data.get('discord')
 
-    await db_model.add_player(user_id=user_id, username=username, discord=discord, fastcup=fastcup)
+    await db_model.add_player(user_id=user_id, username=username, tg_username=msg.from_user.username, discord=discord, fastcup=fastcup)
 
     menu_ikb = await player_kb.get_menu_ikb()
     await msg.answer(text=phrases.menu, reply_markup=menu_ikb)

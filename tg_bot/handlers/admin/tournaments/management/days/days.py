@@ -1,5 +1,6 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
+from tg_bot.misc.phares import Phrases
 
 
 async def menu_days(call: types.CallbackQuery, state: FSMContext):
@@ -7,15 +8,17 @@ async def menu_days(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
 
     admin_kb = call.bot.get('kb').get('admin')
+    db_model = call.bot.get('db_model')
 
-    day_title = '<b>День</b>\n\n'
-    text = 'Выберите действие:'
-    msg_text = day_title + text
+    answer_text = Phrases.day_title + Phrases.choice_action
 
-    menu_days_ikb = await admin_kb.get_menu_days_ikb()
-    await call.message.answer(text=msg_text,
+    day = await db_model.get_day()
+
+    menu_days_ikb = await admin_kb.get_menu_days_ikb(day)
+
+    await call.message.answer(text=answer_text,
                               reply_markup=menu_days_ikb)
 
 
 def register_handlers_menu_days(dp: Dispatcher):
-    dp.register_callback_query_handler(menu_days, text=[''], state='*')
+    dp.register_callback_query_handler(menu_days, text=['days'], state='*', is_admin=True)

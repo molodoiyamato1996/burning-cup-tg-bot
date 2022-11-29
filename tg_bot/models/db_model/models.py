@@ -106,13 +106,15 @@ class Player(Base):
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     member_id = Column(Integer, ForeignKey('members.id'), nullable=False)
     username = Column(String(64), nullable=False, unique=True)
+    tg_username = Column(String(64), nullable=False, unique=True)
     fastcup = Column(String(64), nullable=False, unique=True)
     discord = Column(String(64), nullable=False, unique=True)
     player_status = Column(String(64), nullable=False)
 
-    def __init__(self, member_id: int, username: str, fastcup: str, discord: str):
+    def __init__(self, member_id: int, username: str, tg_username: str, fastcup: str, discord: str):
         self.member_id = member_id
         self.username = username
+        self.tg_username = tg_username
         self.fastcup = fastcup
         self.discord = discord
         self.player_status = PlayerStatus.ACTIVE

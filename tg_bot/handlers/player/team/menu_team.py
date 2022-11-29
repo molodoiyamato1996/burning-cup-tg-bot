@@ -13,5 +13,5 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
                               'Самое время это исправить.', reply_markup=team_ikb)
 
 
-def register_handlers_menu_profile(dp: Dispatcher):
+def register_handlers_menu_team(dp: Dispatcher):
     dp.register_callback_query_handler(menu_team, text=['team'], state='*', is_player=True)

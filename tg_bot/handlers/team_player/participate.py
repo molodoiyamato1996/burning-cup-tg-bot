@@ -20,6 +20,7 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
 
 
 async def confirm_participate(call: types.CallbackQuery, state=FSMContext):
+    await call.message.delete()
     await call.answer(' ')
     await state.finish()
 
@@ -29,7 +30,9 @@ async def confirm_participate(call: types.CallbackQuery, state=FSMContext):
     team_player = await db_model.get_team_player(user_id=user_id)
     await db_model.set_team_player_participate(team_player_id=team_player.id, is_participate=True)
 
+    await call.message.answer('Вы успешно подтвердили своё участие!')
+
 
 def register_handlers_participate(dp: Dispatcher):
     dp.register_callback_query_handler(participate, text=['participate'], is_team_player=True)
-    dp.register_callback_query_handler(participate, text=['confirm_participate'], is_team_player=True)
+    dp.register_callback_query_handler(confirm_participate, text=['confirm_participate'], is_team_player=True)
