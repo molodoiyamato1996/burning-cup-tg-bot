@@ -1,1 +1,1 @@
-from .register_handlers import register_handlers_profile
+from .profile_handler import register_handlers_profile

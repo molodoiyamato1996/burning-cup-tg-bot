@@ -13,7 +13,7 @@ class ModeratorKb:
     async def get_view_request_team_ikb(team_id: int) -> InlineKeyboardMarkup:
         view_request_team_ikb = InlineKeyboardMarkup(row_width=1)
 
-        view_request_team_ib = InlineKeyboardButton('Просмотреть команду', callback_data=f'view_request_team?team_id={team_id}')
+        view_request_team_ib = InlineKeyboardButton('Верифицировать команду', callback_data=f'view_request_team?team_id={team_id}')
 
         view_request_team_ikb.add(view_request_team_ib)
 

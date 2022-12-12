@@ -7,10 +7,12 @@ from .member import MemberFilter
 from .moderator import ModeratorFilter
 from .team_player import TeamPlayerFilter
 from .tournament import TournamentFilter
+from .request_team import RequestTeamFilter
 
 
 def register_all_filters(dp: Dispatcher):
     dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(RequestTeamFilter)
     dp.filters_factory.bind(MemberFilter)
     dp.filters_factory.bind(PlayerFilter)
     dp.filters_factory.bind(TeamPlayerFilter)

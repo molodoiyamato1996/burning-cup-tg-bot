@@ -1,16 +1,16 @@
-from .user_kb import UserKb
 from .admin_kb import AdminKb
-from .player_kb import PlayerKb
-from .team_player_kb import TeamPLayerKb
+from .menu_kb import MenuKb
+from .profile_kb import ProfileKb
+from .register_kb import RegisterKb
+from .team_kb import TeamKb
 from .moderator_kb import ModeratorKb
-from .member_kb import MemberKb
 
 
 kb = {
-    'user': UserKb(),
-    'player': PlayerKb(),
-    'team_player': TeamPLayerKb(),
-    'moderator': ModeratorKb(),
+    'menu': MenuKb(),
     'admin': AdminKb(),
-    'member': MemberKb(),
+    'profile': ProfileKb(),
+    'register': RegisterKb(),
+    'team': TeamKb(),
+    'moderator': ModeratorKb(),
 }

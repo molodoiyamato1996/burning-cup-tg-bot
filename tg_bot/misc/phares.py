@@ -1,7 +1,22 @@
+from .emoji import Emoji
+
+
 class Phrases:
     start: str = 'Добро пожаловать'
-    menu: str = '<b>💠 Главное меню</b>\n\n' \
-                'Выберите действие:'
+
+    menu: str = f'<b>{Emoji.nav} Главное меню</b>\n\n'
+    menu_profile: str = f'<b>{Emoji.nav} Профиль</b>\n\n'
+    menu_team: str = f'<b>{Emoji.nav} Команда</b>\n\n'
+    menu_support: str = f'<b>{Emoji.nav} Поддержка</b>\n\n'
+    menu_rules: str = f'<b>{Emoji.nav} Регламент</b>\n\n'
+    tournament_title: str = '<b>Турнир</b>\n\n'
+    teams_title: str = '<b>Команды</b>\n\n'
+    players_title: str = '<b>Игроки</b>\n\n'
+    day_title: str = '<b>День</b>\n\n'
+
+    choice_action: str = 'Выберите действие:'
+
+    notify_new_team: str = f"{Emoji.notify} Появилась новая команда"
 
     you_need_to_register_to_continue: str = 'Чтобы продолжить вам надо пройти регистрацию'
     first_step_registration: str = '<b>#1 этап верификация\n\n</b>' \
@@ -36,8 +51,6 @@ class Phrases:
     request_member_process: str = '<b>⏳ Ваша заявка проходит модерацию</b>\n\n' \
                                   'Ожидайте уведомление 🛎'
 
-    request_member_success: str = ''
-
     request_member_fail: str = '<b>❌ Вы не прошли модерацию</b>\n\n' \
                                '<b>По причине:</b>\n'
 
@@ -65,14 +78,12 @@ class Phrases:
     discord_success_changed: str = '✅ Дискорд успешно изменён'
     discord_already_in_use: str = 'Данный Дискорд уже используется'
 
-    day_title: str = '<b>День</b>\n\n'
-
-    choice_action: str = 'Выберите действие:'
-
     confirm_finish_day: str = 'Вы уверенны, что хотите закончить день?'
     success_finish_day: str = 'День успешно завершён'
 
-    tournament_title: str = '<b>Турнир</b>\n\n'
+    not_team: str = "У вас ещё нет команды, самое время это исправить."
 
-    teams_title: str = '<b>Команды</b>\n\n'
-    players_title: str = '<b>Игроки</b>\n\n'
+    disbanded_team = "Ваша команда была расформирована"
+    kick_from_team = "Вы были выгнаны из команды"
+    leave_from_team = "Вы вышли из команды"
+    banned_team = "Ваша команда была заблокированна"

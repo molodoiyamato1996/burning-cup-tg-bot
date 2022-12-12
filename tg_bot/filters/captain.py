@@ -14,6 +14,9 @@ class CaptainFilter(BoundFilter):
         user_id = obj.from_user.id
         db_model = obj.bot.get('db_model')
 
-        team_player = await db_model.get_team_player(user_id=user_id)
+        if not await db_model.is_team_player(user_id=user_id):
+            return False
+
+        team_player = await db_model.get_team_player_by_user_id(user_id=user_id)
 
         return self.is_captain == team_player.is_captain

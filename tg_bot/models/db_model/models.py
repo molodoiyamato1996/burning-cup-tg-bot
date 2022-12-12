@@ -145,14 +145,14 @@ class TeamPlayer(Base):
     team_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
     player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
     is_captain = Column(Boolean, nullable=False)
-    is_participate = Column(Boolean, nullable=False, default=False)
+    is_ready = Column(Boolean, nullable=False, default=False)
     team_player_status = Column(String(64), nullable=False)
 
-    def __init__(self, team_id: int, player_id: int, is_captain: bool = False, is_participate: bool = True):
+    def __init__(self, team_id: int, player_id: int, is_captain: bool = False, is_ready: bool = False):
         self.team_id = team_id
         self.player_id = player_id
         self.is_captain = is_captain
-        self.is_participate = is_participate
+        self.is_ready = is_ready
         self.team_player_status = TeamPlayerStatus.ACTIVE
 
 
@@ -225,7 +225,7 @@ class Registration(Base):
     def __init__(self, opening_date: datetime, tournament_id: int):
         self.tournament_id = tournament_id
         self.opening_date = opening_date
-        self.registration_status = RegistrationStatus.OPEN
+        self.registration_status = RegistrationStatus.WAIT
 
 
 class Stage(Base):
@@ -312,6 +312,6 @@ class MapScore(Base):
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'preplayer'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)

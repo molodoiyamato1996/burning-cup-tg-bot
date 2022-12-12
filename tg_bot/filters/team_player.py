@@ -14,5 +14,5 @@ class TeamPlayerFilter(BoundFilter):
         user_id = obj.from_user.id
         db_model = obj.bot.get('db_model')
 
-        team_player_exist = await db_model.team_player_exist(user_id=user_id)
+        team_player_exist = await db_model.is_team_player(user_id=user_id)
         return self.is_team_player == team_player_exist

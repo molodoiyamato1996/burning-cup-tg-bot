@@ -17,9 +17,9 @@ class AdminKb:
         self.maps = InlineKeyboardButton('Карты', callback_data='maps')
 
         self.tournaments = InlineKeyboardButton('Турниры', callback_data='tournaments')
-        self.players = InlineKeyboardButton('Игроки', callback_data='players')
+        self.players = InlineKeyboardButton('Игроки', callback_data='player')
         self.team_players = InlineKeyboardButton('Командные игроки', callback_data='team_players')
-        self.users = InlineKeyboardButton('Пользователи', callback_data='users')
+        self.users = InlineKeyboardButton('Пользователи', callback_data='preplayer')
         self.teams = InlineKeyboardButton('Команды', callback_data='teams')
 
         self.add_match = InlineKeyboardButton('Добавить матч', callback_data='add_match')
@@ -55,7 +55,7 @@ class AdminKb:
 
         for team in teams:
             menu_teams_ikb.add(
-                InlineKeyboardButton(team.title, callback_data=f'view_team?team_id={team.id}')
+                InlineKeyboardButton(team.name, callback_data=f'view_team?team_id={team.id}')
             )
 
         return menu_teams_ikb
@@ -243,7 +243,7 @@ class AdminKb:
 
         registration_buttons = []
 
-        if registration:
+        if registration and registration.registration_status != RegistrationStatus.CANCEL:
             if registration.registration_status != RegistrationStatus.CLOSE:
                 registration_buttons.append(self.set_registration)
                 registration_buttons.append(self.cancel_registration)

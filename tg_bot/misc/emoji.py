@@ -5,7 +5,8 @@ class Emoji:
     success = '✅'
     fail = '❌'
     time = '⏳'
+    notify = "🛎"
     help = '🆘'
     rule = '📝'
     nav = '💠'
-    back = '⬅я'
+    back = '⬅'

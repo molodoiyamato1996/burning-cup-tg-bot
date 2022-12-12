@@ -14,5 +14,5 @@ class PlayerFilter(BoundFilter):
         user_id = obj.from_user.id
         db_model = obj.bot.get('db_model')
 
-        player_exist = await db_model.player_exist(user_id=user_id)
+        player_exist = await db_model.is_player(user_id=user_id)
         return self.is_player == player_exist

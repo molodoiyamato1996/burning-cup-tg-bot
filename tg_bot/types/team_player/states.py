@@ -11,3 +11,6 @@ class SetFastcup(StatesGroup):
 
 class SetUsername(StatesGroup):
     ENTER_NEW_USERNAME = State()
+
+
+

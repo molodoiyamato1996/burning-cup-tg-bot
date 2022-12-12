@@ -23,107 +23,81 @@ class DBInteraction(DBClient):
         self.connect = sessionmaker(bind=self.engine)
         self.session = self.connect()
 
-    async def add_institution(self, name: str, institution_type: str) -> None:
-        try:
-            self.session.add(Institution(
-                name=name,
-                institution_type=institution_type
-            ))
-            self.session.commit()
+    async def get_last_user_id(self) -> int:
+        user_tg = self.session.query(UserTG).order_by(UserTG.id.desc()).first()
 
-        except Exception as ex:
-            print(ex)
+        return user_tg.id
+
+    async def add_institution(self, name: str, institution_type: str) -> None:
+        self.session.add(Institution(
+            name=name,
+            institution_type=institution_type
+        ))
+        self.session.commit()
 
     async def get_institutions(self, institution_type):
-        try:
-            institutions = self.session.query(Institution).filter(
-                Institution.institution_type == institution_type).all()
+        institutions = self.session.query(Institution).filter(
+            Institution.institution_type == institution_type).all()
 
-            return institutions
-
-        except Exception as ex:
-            print(ex)
+        return institutions
 
     async def get_institution(self, institution_id: int, institution_type: str) -> Institution:
-        try:
-            institution = self.session.query(Institution).filter(
-                and_(Institution.id == institution_id, Institution.institution_type == institution_type)).first()
+        institution = self.session.query(Institution).filter(
+            and_(Institution.id == institution_id, Institution.institution_type == institution_type)).first()
 
-            return institution
+        return institution
 
-        except Exception as ex:
-            print(ex)
+    async def is_user(self, user_id: int) -> bool:
+        users = self.session.query(UserTG).filter(UserTG.id == user_id).all()
+        user_exist = bool(len(users))
 
-    async def user_exist(self, user_id: int) -> bool:
-        try:
-            users = self.session.query(UserTG).filter(UserTG.id == user_id).all()
-            user_exist = bool(len(users))
-            return user_exist
-
-        except Exception as ex:
-            print(ex)
+        return user_exist
 
     async def add_user(self, user_id: int, username):
-        try:
-            user = UserTG(
-                id=user_id,
-                username=username
-            )
-            self.session.add(user)
-            self.session.commit()
 
-            return user
-        except Exception as ex:
-            print(ex)
+        user = UserTG(
+            id=user_id,
+            username=username
+        )
+        self.session.add(user)
+        self.session.commit()
+
+        return user
 
     async def get_users(self):
-        try:
-            users = self.session(UserTG).all()
 
-            return users
-        except Exception as ex:
-            print(ex)
+        users = self.session(UserTG).all()
+
+        return users
 
     async def moderator_exist(self, user_id: int) -> bool:
-        try:
-            moderator = self.session.query(Moderator).filter(Moderator.user_id == user_id).all()
 
-            return bool(len(moderator))
+        moderator = self.session.query(Moderator).filter(Moderator.user_id == user_id).all()
 
-        except Exception as ex:
-            print(ex)
+        return bool(len(moderator))
 
     async def add_moderator(self, user_id: int, rule: str):
-        try:
-            moderator = Moderator(
-                user_id=user_id,
-                rule=rule
-            )
-            self.session.add(moderator)
-            self.session.commit()
 
-        except Exception as ex:
-            print(ex)
+        moderator = Moderator(
+            user_id=user_id,
+            rule=rule
+        )
+        self.session.add(moderator)
+        self.session.commit()
 
     async def get_moderators(self, rule: str):
-        try:
-            moderators = self.session.query(Moderator).filter(
-                or_(Moderator.moderator_rule == rule, Moderator.moderator_rule == ModeratorRule.ALL)).all()
 
-            return moderators
+        moderators = self.session.query(Moderator).filter(
+            or_(Moderator.moderator_rule == rule, Moderator.moderator_rule == ModeratorRule.ALL)).all()
 
-        except Exception as ex:
-            print(ex)
+        return moderators
 
     async def request_member_exist(self, user_id: int) -> bool:
-        try:
-            requests_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).all()
-            request_member_exist = bool(len(requests_member))
 
-            return request_member_exist
+        requests_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).all()
+        request_member_exist = bool(len(requests_member))
 
-        except Exception as ex:
-            print(ex)
+        return request_member_exist
 
     async def add_request_member(self, user_id: int, last_name: str, first_name: str, patronymic: str,
                                  document_photo: str, group: str, institution: str,
@@ -157,11 +131,16 @@ class DBInteraction(DBClient):
 
         return request_member
 
-    async def member_exist(self, user_id: int) -> bool:
-        members = self.session.query(Member).filter(Member.user_id == user_id).all()
-        member_exist = bool(len(members))
+    async def is_member(self, user_id: int) -> bool:
+        user = await self.is_user(user_id=user_id)
 
-        return member_exist
+        if not user:
+            return False
+
+        members = self.session.query(Member).filter(Member.user_id == user_id).all()
+        is_member = bool(len(members))
+
+        return is_member
 
     async def add_member(self, user_id: int, last_name: str, first_name: str, patronymic: str,
                          institution: str, member_type: str, group: str):
@@ -176,42 +155,33 @@ class DBInteraction(DBClient):
         ))
         self.session.commit()
 
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         return member
 
-    async def get_member(self, user_id: int) -> Member:
-        member = self.session.query(Member).filter(Member.user_id == user_id).first()
-
-        return member
-
-    async def get_member_by_id(self, member_id: int):
+    async def get_member(self, member_id: int):
         member = self.session.query(Member).filter(Member.id == member_id).first()
 
         return member
 
-    async def get_members_by_players(self, players: list):
-        members = list()
+    async def get_member_by_user_id(self, user_id: int) -> Member:
+        member = self.session.query(Member).filter(Member.user_id == user_id).first()
 
-        for player in players:
-            member = self.session.query(Member).filter(Member.player_id == player.id).first()
-            members.append(member)
+        return member
 
-        return members
-
-    async def player_exist(self, user_id: int) -> bool:
-        if not await self.member_exist(user_id=user_id):
+    async def is_player(self, user_id: int) -> bool:
+        if not await self.is_member(user_id=user_id):
             return False
 
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         players = self.session.query(Player).filter(Player.member_id == member.id).all()
-        player_exist = bool(len(players))
+        is_player = bool(len(players))
 
-        return player_exist
+        return is_player
 
     async def add_player(self, user_id: int, username: str, tg_username: str, discord: str, fastcup: str):
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         self.session.add(Player(
             member_id=member.id,
@@ -223,41 +193,59 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
-        player = await self.get_player(user_id=user_id)
+        player = await self.get_player_by_user_id(user_id=user_id)
 
         return player
 
-    async def get_player_by_id(self, player_id: int) -> Player:
+    async def get_player(self, player_id: int) -> Player:
         player = self.session.query(Player).filter(Player.id == player_id).first()
 
         return player
 
-    async def get_player(self, user_id: int) -> Player:
-        member = await self.get_member(user_id=user_id)
+    async def get_player_by_username(self, username: str) -> Player:
+        player = self.session.query(Player).filter(Player.username == username).first()
 
-        if member is None:
+        return player
+
+    async def get_team_player_by_player_id(self, player_id: int):
+        team_player = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player_id).order_by(
+            TeamPlayer.id.desc()).first()
+
+        return team_player
+
+    async def is_tournament(self):
+        tournament = self.session.query(Tournament).filter(and_(Tournament.tournament_status != TournamentStatus.CANCEL,
+                                                                Tournament.tournament_status != TournamentStatus.FINISH)).order_by(
+            Tournament.id.desc()).first()
+
+        if tournament is None:
             return False
+
+        return True
+
+    async def get_player_by_user_id(self, user_id: int) -> Player:
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         player = self.session.query(Player).filter(Player.member_id == member.id).first()
 
         return player
 
     async def set_player_username(self, user_id: int, username: str):
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         self.session.query(Player).filter(Player.member_id == member.id).update({'username': username})
 
         self.session.commit()
 
     async def set_player_fastcup(self, user_id: int, fastcup: str):
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         self.session.query(Player).filter(Player.member_id == member.id).update({'fastcup': fastcup})
 
         self.session.commit()
 
     async def set_player_discord(self, user_id: int, discord: str):
-        member = await self.get_member(user_id=user_id)
+        member = await self.get_member_by_user_id(user_id=user_id)
 
         self.session.query(Player).filter(Player.member_id == member.id).update({'username': discord})
 
@@ -290,21 +278,12 @@ class DBInteraction(DBClient):
         return is_valid_fastcup
 
     async def is_team_player(self, user_id: int) -> bool:
-        player = await self.get_player(user_id=user_id)
+        is_player = await self.is_player(user_id=user_id)
 
-        team_player = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player.id).all()
-
-        is_team_player = bool(len(team_player))
-
-        return is_team_player
-
-    async def team_player_exist(self, user_id: int) -> bool:
-        player_exist = await self.player_exist(user_id=user_id)
-
-        if not player_exist:
+        if not is_player:
             return False
 
-        player = await self.get_player(user_id=user_id)
+        player = await self.get_player_by_user_id(user_id=user_id)
 
         team_players = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player.id).all()
 
@@ -312,32 +291,31 @@ class DBInteraction(DBClient):
 
         return team_player_exist
 
-    async def add_team_player(self, user_id: int, team_id: int, is_captain: bool = False, is_participate: bool = True):
-        player = await self.get_player(user_id=user_id)
+    async def add_team_player(self, user_id: int, team_id: int, is_captain: bool = False):
+        player = await self.get_player_by_user_id(user_id=user_id)
 
         team_player = TeamPlayer(
             player_id=player.id,
             team_id=team_id,
-            is_participate=is_participate,
             is_captain=is_captain
         )
 
         self.session.add(team_player)
         self.session.commit()
 
-    async def get_team_player(self, user_id: int) -> TeamPlayer:
-        player = await self.get_player(user_id=user_id)
+    async def get_team_player_by_user_id(self, user_id: int) -> TeamPlayer:
+        player = await self.get_player_by_user_id(user_id=user_id)
 
         team_player = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player.id).order_by(
             TeamPlayer.id.desc()).first()
 
         return team_player
 
-    async def get_team_player_by_player_id(self, player_id: int) -> TeamPlayer:
-        team_player = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player_id).order_by(
-            TeamPlayer.id.desc()).first()
+    async def get_captain_by_team_id(self, team_id: int) -> TeamPlayer:
+        captain = self.session.query(TeamPlayer).filter(
+            and_(TeamPlayer.team_id == team_id, TeamPlayer.is_captain, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE)).first()
 
-        return team_player
+        return captain
 
     async def set_team_player_status_by_player_id(self, team_player_id: int, status: str) -> None:
         self.session.query(TeamPlayer).filter(TeamPlayer.id == team_player_id).update({'team_player_status': status})
@@ -359,17 +337,11 @@ class DBInteraction(DBClient):
         return players
 
     async def get_team_players_without_captain(self, team_id: int, captain_id: int):
-        players = self.session.query(TeamPlayer).filter(
+        team_players = self.session.query(TeamPlayer).filter(
             and_(TeamPlayer.team_id == team_id, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE,
                  TeamPlayer.id != captain_id)).all()
 
-        return players
-
-    async def get_captain_by_team_id(self, team_id: int) -> TeamPlayer:
-        captain = self.session.query(TeamPlayer).filter(
-            and_(TeamPlayer.team_id == team_id, TeamPlayer.is_captain)).first()
-
-        return captain
+        return team_players
 
     async def get_team(self, team_id: int) -> Team:
         team = self.session.query(Team).filter(Team.id == team_id).first()
@@ -430,8 +402,7 @@ class DBInteraction(DBClient):
         self.session.commit()
 
     async def set_team_status(self, team_id: int, status: str):
-        self.session.query(Team).filter(and_(Team.id == team_id, Team.team_status == TeamStatus.ACTIVE)).update(
-            {'team_status': status})
+        self.session.query(Team).filter(Team.id == team_id).update({'team_status': status})
         self.session.commit()
 
     async def get_team_by_id(self, team_id) -> Team:
@@ -460,16 +431,17 @@ class DBInteraction(DBClient):
             {'request_status': status})
         self.session.commit()
 
-    async def get_request_team(self, request_team_id: int):
+    async def get_request_team(self, request_team_id: int) -> RequestTeam:
         request_team = self.session.query(RequestTeam).filter(RequestTeam.id == request_team_id).order_by(
             RequestTeam.id.desc()
         ).first()
 
         return request_team
 
-    async def get_request_team_by_team_id(self, team_id: int):
+    async def get_request_team_by_team_id(self, team_id: int) -> RequestTeam:
         request_team = self.session.query(RequestTeam).filter(RequestTeam.team_id == team_id).order_by(
-            RequestTeam.id.desc()).first()
+            RequestTeam.id.desc()
+        ).first()
 
         return request_team
 
@@ -477,10 +449,10 @@ class DBInteraction(DBClient):
                                   name: str, photo: str):
         self.session.add(TournamentTeam(
             captain_id=captain_id,
-            second_player=players[0].id,
-            third_player=players[1].id,
-            four_player=players[2].id,
-            fifth_player=players[3].id,
+            second_player=players[0].player_id,
+            third_player=players[1].player_id,
+            four_player=players[2].player_id,
+            fifth_player=players[3].player_id,
             name=name,
             photo=photo,
         ))
@@ -510,15 +482,26 @@ class DBInteraction(DBClient):
 
         return team_players
 
-    async def add_registration(self, opening_date: datetime, tournament_id: int):
+    async def add_registration(self, opening_date: datetime, tournament_id: int) -> Registration:
         self.session.add(Registration(
             tournament_id=tournament_id,
             opening_date=opening_date,
         ))
+
         self.session.commit()
 
-    async def set_registration_status(self, status: str):
-        self.session.query(Registration).order_by(Registration.id.desc()).update(
+        registration = await self.get_registration(tournament_id=tournament_id)
+
+        return registration
+
+    async def get_registration(self, tournament_id: int) -> Registration:
+        registration = self.session.query(Registration).filter(Registration.tournament_id == tournament_id).order_by(
+            Registration.id.desc()).first()
+
+        return registration
+
+    async def set_registration_status(self, registration_id: int, status: str):
+        self.session.query(Registration).filter(Registration.id == registration_id).update(
             {'registration_status': status})
         self.session.commit()
 
@@ -657,28 +640,19 @@ class DBInteraction(DBClient):
 
         return tournament
 
-    async def is_tournament(self) -> bool:
-        is_tournament = self.session.query(Tournament).filter(or_(
-            Tournament.tournament_status != TournamentStatus.FINISH, Tournament.tournament_status != TournamentStatus.CANCEL)).order_by(Tournament.id.desc()).first()
-
-        if is_tournament is None:
+    async def is_registration(self) -> bool:
+        if not await self.is_tournament():
             return False
 
-        return True
-
-    async def is_registration(self) -> bool:
         is_registration = self.session.query(Registration).filter(
-            Registration.registration_status != RegistrationStatus.CLOSE).order_by(Registration.id.desc()).first()
+            and_(Registration.registration_status != RegistrationStatus.CLOSE,
+                 Registration.registration_status != RegistrationStatus.CANCEL)).order_by(
+            Registration.id.desc()).first()
 
         if is_registration is None:
             return False
 
         return True
-
-    async def get_registration(self, tournament_id: int) -> Registration:
-        registration = self.session.query(Registration).filter(Registration.tournament_id == tournament_id).order_by(Registration.id.desc()).first()
-
-        return registration
 
     async def get_day(self) -> Day:
         day = self.session.query(Day).filter(Day.day_status == DayStatus.ACTIVE).order_by(Day.id.desc()).first()
@@ -694,3 +668,17 @@ class DBInteraction(DBClient):
         teams = self.session.query(Team).filter(Team.team_status == TeamStatus.ACTIVE).all()
 
         return teams
+
+    async def set_is_captain(self, team_player_id: int, is_captain: bool):
+        self.session.query(TeamPlayer).filter(TeamPlayer.id == team_player_id).update({
+            "is_captain": is_captain
+        })
+
+        self.session.commit()
+
+    async def set_team_player_is_ready(self, team_player_id: int, is_ready: bool) -> None:
+        self.session.query(TeamPlayer).filter(TeamPlayer.id == team_player_id).update({
+            "is_ready": is_ready
+        })
+
+        self.session.commit()
