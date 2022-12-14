@@ -1,9 +1,50 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from tg_bot.types.registration import RegistrationStatus
+from tg_bot.types.tournament import TournamentStatus
 
 
 class AdminKb:
+    # Back
+    ib_back_to_menu = InlineKeyboardButton("Вернуться", callback_data="back_to_menu")
+    ib_back_to_tournament = InlineKeyboardButton("Вернуться", callback_data="back_to_tournament")
+    ib_back_to_registration = InlineKeyboardButton("Вернуться", callback_data="back_to_registration")
+
+    # Tournament
+    ib_set_tournament = InlineKeyboardButton("Назначить", callback_data="set_tournament")
+
+    # Registration
+    ib_registration = InlineKeyboardButton("Регистрация", callback_data="registration")
+
+    # Registration Actions
+    ib_set_registration = InlineKeyboardButton("Назначить", callback_data="set_registration")
+    ib_cancel_registration = InlineKeyboardButton("Отменить", callback_data="cancel_registration")
+    ib_view_registration = InlineKeyboardButton("Посмотреть", callback_data="view_registration")
+
+    # Tournament Teams
+    ib_tournament_teams = InlineKeyboardButton("Турнирные команды", callback_data="tournament_teams")
+
+    # Players
+    ib_players = InlineKeyboardButton("Игроки", callback_data="players")
+
+    ib_view_all_players = InlineKeyboardButton("Показать всех", callback_data="view_all_players")
+
+
+    # Search
+    ib_search_player = InlineKeyboardButton("Поиск", callback_data="search_player_select")
+    ib_search_player_by_user_id = InlineKeyboardButton("По user_id", callback_data="search_player?by=user_id")
+    ib_search_player_by_username = InlineKeyboardButton("По username", callback_data="search_player?by=username")
+    ib_search_player_by_tg_username = InlineKeyboardButton("По tg_username", callback_data="search_player?by=tg_username")
+
+    # Teams
+    ib_teams = InlineKeyboardButton("Игроки", callback_data="teams")
+
+    ib_view_all_teams = InlineKeyboardButton("Показать всех", callback_data="view_all_teams")
+
+    # Search
+    ib_search_team = InlineKeyboardButton("Поиск", callback_data="search_team_select")
+    ib_search_team_by_user_id = InlineKeyboardButton("По названию", callback_data="search_team?by=name")
+
     def __init__(self):
         self.tournament_teams = InlineKeyboardButton('Турнирые команды', callback_data='tournament_teams')
 
@@ -39,6 +80,77 @@ class AdminKb:
         self.set_anons_date = InlineKeyboardButton('Дату анонса', callback_data='set_date_anons')
         self.set_limit_teams = InlineKeyboardButton('Ограничение команд', callback_data='set_limit_teams')
         self.set_tournament_status = InlineKeyboardButton('Статус', callback_data='set_tournament_status')
+
+    async def get_start_ikb(self) -> InlineKeyboardMarkup:
+        start_ikb = InlineKeyboardMarkup(row_width=1)
+
+        start_buttons = [
+            self.tournaments,
+            self.teams,
+            self.players,
+        ]
+
+        start_ikb.add(*start_buttons)
+
+        return start_ikb
+
+    async def get_tournament_ikb(self, tournament=None, registration=None) -> InlineKeyboardMarkup:
+        tournament_ikb = InlineKeyboardMarkup(row_width=1)
+
+        if not tournament or tournament.tournament_status == TournamentStatus.CANCEL or tournament.tournament_status == TournamentStatus.FINISH:
+            tournament_ikb.add(self.ib_set_tournament)
+        elif not registration or registration.registration_status == RegistrationStatus.CANCEL:
+            tournament_ikb.add(self.ib_registration)
+        elif registration.registration_status != RegistrationStatus.CANCEL:
+            tournament_ikb.add(self.ib_registration).add(self.tournament_teams)
+
+        tournament_ikb.add(self.ib_back_to_menu)
+
+        return tournament_ikb
+
+    async def get_registration_ikb(self, registration=None) -> InlineKeyboardMarkup:
+        registration_ikb = InlineKeyboardMarkup(row_width=1)
+
+        if not registration or registration.registration_status == RegistrationStatus.CANCEL:
+            registration_ikb.add(self.ib_set_registration)
+        elif registration.registration_status == RegistrationStatus.OPEN:
+            registration_ikb.add(self.ib_cancel_registration).add(self.ib_view_registration)
+        elif registration.registration_status == RegistrationStatus.CLOSE:
+            registration_ikb.add(self.ib_view_registration)
+
+        registration_ikb.add(self.ib_back_to_tournament)
+
+        return registration_ikb
+
+    async def get_players_ikb(self, is_players: bool = False) -> InlineKeyboardMarkup:
+        players_ikb = InlineKeyboardMarkup(row_width=1)
+
+        if is_players:
+            players_ikb.add(self.ib_search_player).add(self.ib_view_all_players)
+
+        players_ikb.add(self.ib_back_to_tournament)
+
+        return players_ikb
+
+    async def get_teams_ikb(self, is_teams: bool = False) -> InlineKeyboardMarkup:
+        teams_ikb = InlineKeyboardMarkup(row_width=1)
+
+        if is_teams:
+            teams_ikb.add(self.ib_search_team).add(self.ib_view_all_teams)
+
+        teams_ikb.add(self.ib_back_to_tournament)
+
+        return teams_ikb
+
+    async def get_menu_view_all_players(self, players: list) -> InlineKeyboardMarkup:
+        menu_view_all_players = InlineKeyboardMarkup(row_width=1)
+
+        for player in players:
+            menu_view_all_players.add(
+                InlineKeyboardButton(text=player.username, callback_data=f'view_player?player_id={player.id}')
+            )
+
+        return menu_view_all_players
 
     async def get_menu_players_ikb(self, players: list) -> InlineKeyboardMarkup:
         menu_players_ikb = InlineKeyboardMarkup(row_width=1)
@@ -211,19 +323,6 @@ class AdminKb:
         team_ikb.add(*team_buttons)
 
         return team_ikb
-
-    async def get_start_ikb(self) -> InlineKeyboardMarkup:
-        start_ikb = InlineKeyboardMarkup(row_width=1)
-
-        start_buttons = [
-            self.tournaments,
-            self.teams,
-            self.players,
-            self.users
-        ]
-        start_ikb.add(*start_buttons)
-
-        return start_ikb
 
     async def get_matches_ikb(self) -> InlineKeyboardMarkup:
         matches_ikb = InlineKeyboardMarkup(row_width=1)

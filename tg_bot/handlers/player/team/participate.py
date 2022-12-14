@@ -23,21 +23,22 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
 
     team_player = await db_model.get_team_player_by_user_id(user_id=user_id)
 
-    request_team = await db_model.get_request_team(team_id=team_player.team_id)
+    request_team = await db_model.get_request_team_by_team_id(team_id=team_player.team_id)
 
-    if request_team.request_status == RequestStatus.WAIT or request_team.request_status == RequestStatus.PROCESS or request_team.request_status == RequestStatus.SUCCESS:
-        if request_team.request_status == RequestStatus.SUCCESS:
-            answer_text = "Вы уже приняли участие в турнире"
-            await call.message.answer(text=answer_text)
-            return
-        elif request_team.request_status == RequestStatus.WAIT:
-            answer_text = "Ваша анкета в ожидании верификации"
-            await call.message.answer(text=answer_text)
-            return
-        elif request_team.request_status == RequestStatus.PROCESS:
-            answer_text = "Ваша анкета верифицируется"
-            await call.message.answer(text=answer_text)
-            return
+    if request_team:
+        if request_team.request_status == RequestStatus.FAIL:
+            if request_team.request_status == RequestStatus.SUCCESS:
+                answer_text = "Вы уже приняли участие в турнире"
+                await call.message.answer(text=answer_text)
+                return
+            elif request_team.request_status == RequestStatus.WAIT:
+                answer_text = "Ваша анкета в ожидании верификации"
+                await call.message.answer(text=answer_text)
+                return
+            elif request_team.request_status == RequestStatus.PROCESS:
+                answer_text = "Ваша анкета верифицируется"
+                await call.message.answer(text=answer_text)
+                return
     
     if await db_model.is_tournament():
         tournament = await db_model.get_tournament()
@@ -63,6 +64,7 @@ async def participate(call: types.CallbackQuery, state=FSMContext):
                     return
 
                 for team_player in team_players:
+                    print(team_player.is_ready)
                     if not team_player.is_ready:
                         await call.message.answer("Все игроки команды должны подтвердить готовность.")
                         return

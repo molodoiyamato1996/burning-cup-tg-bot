@@ -8,6 +8,7 @@ from tg_bot.misc.emoji import Emoji
 from tg_bot.misc.sctripts import notify_user
 from tg_bot.misc.scheduler import scheduler
 from tg_bot.types.registration import StartRegistrationStates, RegistrationStatus
+from tg_bot.misc.phares import Phrases
 
 
 # дата начала
@@ -62,14 +63,12 @@ async def enter_date_registration(msg: types.Message, state=FSMContext):
 
     date_left = opening_date - current_date
 
-    await msg.answer('<b>Регистрация успешно добавлена</b>\n\n'
-                     f'Дата: <code>{opening_date}</code>\n'
-                     f'До начала: <code>{date_left}</code>')
+    answer_text = Phrases.menu_registration + Phrases.registration_success_add + f"Дата: <code>{opening_date}</code>\n" \
+                                                                                 f"До начала: <code>{date_left}</code>"
 
-    team_kb = bot.get('kb').get('team')
+    await msg.answer(answer_text)
 
-    msg_text = f'<b> {Emoji.burn}Регистрация на турнир открыта</b>\n\n'
-    participate_ikb = await team_kb.get_participate_ikb()
+    msg_text = Phrases.registration_is_open
 
     date_left_in_second = date_left.total_seconds()
 
@@ -81,7 +80,7 @@ async def enter_date_registration(msg: types.Message, state=FSMContext):
         captain = await db_model.get_captain_by_team_id(team_id=team.id)
         player = await db_model.get_player(player_id=captain.player_id)
         member = await db_model.get_member(member_id=player.member_id)
-        await scheduler(notify_user, date_left_in_second, msg_text, member.user_id, bot, participate_ikb)
+        await notify_user(delay=date_left_in_second, text=msg_text, chat_id=member.user_id, bot=bot)
 
     await scheduler(db_model.set_registration_status, date_left_in_second, registration.id, RegistrationStatus.OPEN)
 

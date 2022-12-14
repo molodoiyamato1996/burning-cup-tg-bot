@@ -11,9 +11,14 @@ async def menu_tournaments(call: types.CallbackQuery, state=FSMContext):
     admin_kb = call.bot.get('kb').get('admin')
     db_model = call.bot.get('db_model')
 
-    is_tournament = await db_model.is_tournament()
+    tournament = await db_model.get_tournament()
 
-    menu_tournaments_ikb = await admin_kb.get_menu_tournaments_ikb(is_tournament=is_tournament)
+    registration = None
+
+    if tournament:
+        registration = await db_model.get_registration(tournament_id=tournament.id)
+
+    menu_tournaments_ikb = await admin_kb.get_tournament_ikb(tournament=tournament, registration=registration)
 
     answer_text = TournamentPhrases.title + TournamentPhrases.menu_tournament
 

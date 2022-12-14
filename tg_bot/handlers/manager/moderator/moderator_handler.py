@@ -27,6 +27,7 @@ async def view_request_member(call: types.CallbackQuery):
 
     request_member_user_id = props.get('user_id')
 
+    print(request_member_user_id)
     request_member = await db_model.get_request_member(user_id=request_member_user_id)
 
     if request_member.request_member_status == RequestStatus.PROCESS:
@@ -69,7 +70,6 @@ async def verif_request_member(call: types.CallbackQuery, state=FSMContext):
 
     request_member_user_id = props.get('user_id')
     request_member_result = props.get('result')
-
     if request_member_result == 'no':
         await call.message.answer('Введите причину отказа:')
         await state.set_state(VerifRequestMember.ENTER_RESPONSE)
@@ -118,7 +118,6 @@ async def view_request_team(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.message.delete()
 
-
     db_model = call.bot.get('db_model')
     moderator_kb = call.bot.get('kb').get('moderator')
 
@@ -166,6 +165,7 @@ async def view_request_team(call: types.CallbackQuery, state=FSMContext):
 
 async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
     await call.answer()
+    await call.message.delete()
 
     db_model = call.bot.get('db_model')
 
@@ -189,7 +189,7 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
             team_players = await db_model.get_team_players_without_captain(team_id=request_team.team_id,
                                                                            captain_id=captain.id)
 
-            team = await db_model.get_team(team_id=request_team.id)
+            team = await db_model.get_team(team_id=request_team.team_id)
 
             await db_model.add_tournament_team(
                 captain_id=captain.id,
@@ -203,9 +203,20 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
             if len(tournament_teams) == tournament.limit_teams:
                 await db_model.set_registration_status(registration_id=registration.id, status=RegistrationStatus.CLOSE)
 
-                closing_date = datetime.datetime.now().timestamp()
+                closing_date = datetime.datetime.now()
                 await db_model.set_registration_closing_date(registration_id=registration.id, closing_date=closing_date)
                 users = await db_model.get_users()
+
+                await db_model.set_request_team_status(request_team_id=request_team_id, status=RequestStatus.SUCCESS)
+
+                player_captain = await db_model.get_player(player_id=captain.player_id)
+                member_captain = await db_model.get_member(member_id=player_captain.member_id)
+
+                await notify_user(
+                    text='✅ Ваша команда приняла участие в турнире <b>🔥 Burning Cup</b>',
+                    chat_id=member_captain.user_id,
+                    bot=call.bot
+                )
 
                 await grouping(db_model=db_model)
                 await add_matches(db_model=db_model)
@@ -217,18 +228,6 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
                         chat_id=user.id,
                         bot=call.bot
                     )
-
-            await db_model.set_request_team_status(request_team_id=request_team_id, status=RequestStatus.SUCCESS)
-
-            player_captain = await db_model.get_player(player_id=captain.player_id)
-            member_captain = await db_model.get_member(member_id=player_captain.member_id)
-
-            await call.message.delete()
-            await notify_user(
-                text='✅ Ваша команда приняла участие в турнире <b>🔥 Burning Cup</b>',
-                chat_id=member_captain.user_id,
-                bot=call.bot
-            )
     else:
         await call.message.answer('Введите причину отказа')
         await state.set_state(VerifRequestTeam.ENTER_COMMENT_REQUEST_TEAM)
@@ -245,6 +244,7 @@ async def enter_comment_request_team(msg: types.Message, state=FSMContext):
 
     request_team_id = state_data.get('request_team_id')
 
+    await db_model.set_request_team_status(request_team_id=request_team_id, status=RequestStatus.FAIL)
     await db_model.set_request_team_comment(request_team_id=request_team_id, comment=comment)
     request_team = await db_model.get_request_team(request_team_id=request_team_id)
 

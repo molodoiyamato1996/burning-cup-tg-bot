@@ -1,7 +1,7 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-from tg_bot.types.registration.status import RegistrationStatus
+from tg_bot.misc.phares import Phrases
 
 
 async def menu_registration(call: types.CallbackQuery, state=FSMContext):
@@ -12,12 +12,17 @@ async def menu_registration(call: types.CallbackQuery, state=FSMContext):
     admin_kb = call.bot.get('kb').get('admin')
 
     tournament = await db_model.get_tournament()
+
+    if tournament is None:
+        return
+
     registration = await db_model.get_registration(tournament_id=tournament.id)
 
     registration_ikb = await admin_kb.get_registration_ikb(registration=registration)
 
-    await call.message.answer(text='<b>Регистрации</b>\n\n'
-                                   'Выберите действие:',
+    answer_text = Phrases.menu_registration + Phrases.choice_action
+
+    await call.message.answer(text=answer_text,
                               reply_markup=registration_ikb)
 
 
@@ -29,13 +34,18 @@ async def back_to_registration(call: types.CallbackQuery, state=FSMContext):
     admin_kb = call.bot.get('kb').get('admin')
 
     tournament = await db_model.get_tournament()
+
+    if tournament is None:
+        return
+
     registration = await db_model.get_registration(tournament_id=tournament.id)
 
     registration_ikb = await admin_kb.get_registration_ikb(registration=registration)
 
+    answer_text = Phrases.menu_registration + Phrases.choice_action
+
     await call.bot.edit_message_text(
-        text='<b>Регистрации</b>\n\n'
-             'Выберите действие:',
+        text=answer_text,
         message_id=call.message.message_id,
         chat_id=call.message.chat.id,
         reply_markup=registration_ikb)

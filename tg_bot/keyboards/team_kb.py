@@ -4,6 +4,7 @@ from tg_bot.keyboards.base_kb import BaseKb
 
 from tg_bot.misc.emoji import Emoji
 from tg_bot.types.request import RequestStatus
+from tg_bot.types.registration import RegistrationStatus
 
 
 class TeamKb(BaseKb):
@@ -22,7 +23,7 @@ class TeamKb(BaseKb):
     ib_set_team_name = InlineKeyboardButton("Изменить название", callback_data="set_team_name")
     ib_set_team_photo = InlineKeyboardButton("Изменить фото", callback_data="set_team_photo")
 
-    async def get_team_ikb(self, team_exist: bool = False, is_captain: bool = False, is_ready: bool = False, registration_is_open: bool = False,
+    async def get_team_ikb(self, team_exist: bool = False, is_captain: bool = False, is_ready: bool = False, registration=None,
                            request_team=None):
         team_ikb = InlineKeyboardMarkup(row_width=1)
 
@@ -35,10 +36,13 @@ class TeamKb(BaseKb):
 
         if is_captain:
             team_ikb.add(self.ib_disbanded_team).add(self.ib_set_team_name).add(self.ib_set_team_photo).add(self.ib_invite_code)
-
-            if registration_is_open and request_team:
-                if request_team.request_status != RequestStatus.WAIT and request_team.request_status != RequestStatus.PROCESS and request_team.request_status != RequestStatus.SUCCESS:
-                    team_ikb.add(self.ib_participate)
+            if registration:
+                print(registration.registration_status)
+                if registration.registration_status == RegistrationStatus.OPEN:
+                    if request_team is None:
+                        team_ikb.add(self.ib_participate)
+                    elif request_team.request_status != RequestStatus.WAIT and request_team.request_status != RequestStatus.PROCESS and request_team.request_status != RequestStatus.SUCCESS:
+                        team_ikb.add(self.ib_participate)
         else:
             team_ikb.add(self.ib_leave_from_team)
 

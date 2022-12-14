@@ -5,6 +5,12 @@ class Phrases:
     start: str = 'Добро пожаловать'
 
     menu: str = f'<b>{Emoji.nav} Главное меню</b>\n\n'
+
+    menu_registration: str = "<b>Регистрации</b>\n\n"
+
+    registration_is_open: str = f"<b> {Emoji.burn}Регистрация на турнир открыта</b>\n\n"
+    registration_success_add: str = "<b>Регистрация успешно добавлена</b>\n\n"
+
     menu_profile: str = f'<b>{Emoji.nav} Профиль</b>\n\n'
     menu_team: str = f'<b>{Emoji.nav} Команда</b>\n\n'
     menu_support: str = f'<b>{Emoji.nav} Поддержка</b>\n\n'

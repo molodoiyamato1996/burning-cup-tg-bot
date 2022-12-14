@@ -81,7 +81,7 @@ async def enter_date_anons(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_add_tournament(dp: Dispatcher):
-    dp.register_callback_query_handler(add_tournament, text=['add_tournament'], state='*', is_admin=True)
+    dp.register_callback_query_handler(add_tournament, text=['set_tournament'], state='*', is_admin=True)
     dp.register_message_handler(enter_name_tournament, state=AddTournament.ENTER_NAME_TOURNAMENT, is_admin=True)
     dp.register_message_handler(enter_limit_teams, state=AddTournament.ENTER_LIMIT_TEAMS, is_admin=True)
     dp.register_message_handler(enter_date_anons, state=AddTournament.ENTER_DATE_ANONS, is_admin=True)

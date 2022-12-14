@@ -59,6 +59,7 @@ class DBInteraction(DBClient):
             id=user_id,
             username=username
         )
+
         self.session.add(user)
         self.session.commit()
 
@@ -66,7 +67,7 @@ class DBInteraction(DBClient):
 
     async def get_users(self):
 
-        users = self.session(UserTG).all()
+        users = self.session.query(UserTG).all()
 
         return users
 
@@ -207,11 +208,16 @@ class DBInteraction(DBClient):
 
         return player
 
-    async def get_team_player_by_player_id(self, player_id: int):
+    async def get_team_player_by_player_id(self, player_id: int) -> TeamPlayer:
         team_player = self.session.query(TeamPlayer).filter(TeamPlayer.player_id == player_id).order_by(
             TeamPlayer.id.desc()).first()
 
         return team_player
+
+    async def get_team_players_by_team_id(self, team_id: int):
+        team_players = self.session.query(TeamPlayer).filter(TeamPlayer.team_id == team_id).all()
+
+        return team_players
 
     async def is_tournament(self):
         tournament = self.session.query(Tournament).filter(and_(Tournament.tournament_status != TournamentStatus.CANCEL,
@@ -291,17 +297,20 @@ class DBInteraction(DBClient):
 
         return team_player_exist
 
-    async def add_team_player(self, user_id: int, team_id: int, is_captain: bool = False):
+    async def add_team_player(self, user_id: int, team_id: int, is_captain: bool = False, is_ready: bool = False) -> Player:
         player = await self.get_player_by_user_id(user_id=user_id)
 
         team_player = TeamPlayer(
             player_id=player.id,
             team_id=team_id,
-            is_captain=is_captain
+            is_captain=is_captain,
+            is_ready=is_ready
         )
 
         self.session.add(team_player)
         self.session.commit()
+
+        return await self.get_team_player_by_user_id(user_id=user_id)
 
     async def get_team_player_by_user_id(self, user_id: int) -> TeamPlayer:
         player = await self.get_player_by_user_id(user_id=user_id)
@@ -331,10 +340,10 @@ class DBInteraction(DBClient):
         self.session.commit()
 
     async def get_team_players(self, team_id: int):
-        players = self.session.query(TeamPlayer).filter(
+        team_players = self.session.query(TeamPlayer).filter(
             and_(TeamPlayer.team_id == team_id, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE)).all()
 
-        return players
+        return team_players
 
     async def get_team_players_without_captain(self, team_id: int, captain_id: int):
         team_players = self.session.query(TeamPlayer).filter(
@@ -524,10 +533,15 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
-    async def get_matches(self, match_status: str):
-        matches = self.session.query(Match).filter(Match.match_status == match_status).all()
+    async def get_matches(self):
+        matches = self.session.query(Match).all()
 
         return matches
+
+    # async def get_matches(self, match_status: str):
+    #     matches = self.session.query(Match).filter(Match.match_status == match_status).all()
+    #
+    #     return matches
 
     async def get_match(self, match_id: int) -> Match:
         match = self.session.query(Match).filter(Match.id == match_id).first()
@@ -679,6 +693,13 @@ class DBInteraction(DBClient):
     async def set_team_player_is_ready(self, team_player_id: int, is_ready: bool) -> None:
         self.session.query(TeamPlayer).filter(TeamPlayer.id == team_player_id).update({
             "is_ready": is_ready
+        })
+
+        self.session.commit()
+
+    async def set_registration_closing_date(self, registration_id: int, closing_date: datetime):
+        self.session.query(Registration).filter(Registration.id == registration_id).update({
+            "closing_date": closing_date
         })
 
         self.session.commit()

@@ -63,6 +63,8 @@ async def cmd_start_user(msg: types.Message, state=FSMContext):
         await msg.answer('Чтобы продолжить Вам необходимо указать username в настройках Вашего аккаунта Telegram.')
         return
 
+    print(user_id)
+    print(msg.chat.id)
     if not await db_model.is_user(user_id=user_id):
         await db_model.add_user(user_id=user_id, username=username)
 
@@ -190,9 +192,9 @@ async def enter_group(msg: types.Message, state=FSMContext):
 async def send_document_photo(msg: types.Message, state=FSMContext):
     document_photo = msg.photo[-1].file_id
     user_id = msg.from_user.id
-
+    print(user_id)
     bot = msg.bot
-
+    print(msg.photo[-1].file_id)
     db_model = bot.get('db_model')
     moderator_kb = bot.get('kb').get('moderator')
     state_data = await state.get_data()

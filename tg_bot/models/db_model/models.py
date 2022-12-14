@@ -217,7 +217,7 @@ class Registration(Base):
     __tablename__ = 'registrations'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    tournament_id = Column(Integer, ForeignKey('tournament_teams.id'))
+    tournament_id = Column(Integer, ForeignKey('tournaments.id'))
     opening_date = Column(TIMESTAMP, nullable=False)
     closing_date = Column(TIMESTAMP, nullable=True)
     registration_status = Column(String(64), nullable=False)
@@ -239,6 +239,7 @@ class Match(Base):
     __tablename__ = 'matches'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    first_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     second_tournament_team_id = Column(Integer, ForeignKey('tournament_teams.id'), nullable=True)
     next_number_match = Column(Integer, nullable=True)
     number_match = Column(Integer, nullable=False)

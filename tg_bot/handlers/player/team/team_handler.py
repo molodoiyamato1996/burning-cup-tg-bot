@@ -46,18 +46,16 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
             team = await db_model.get_team(team_id=team_player.team_id)
 
             if team_player.is_captain:
+                registration = None
+
                 if await db_model.is_registration():
                     tournament = await db_model.get_tournament()
                     registration = await db_model.get_registration(tournament_id=tournament.id)
 
-                    registration_is_open = registration.registration_status == RegistrationStatus.OPEN
-                else:
-                    registration_is_open = False
-
                 request_team = await db_model.get_request_team_by_team_id(team_id=team.id)
 
                 team_ikb = await team_kb.get_team_ikb(team_exist=True, is_captain=team_player.is_captain,
-                                                      registration_is_open=registration_is_open,
+                                                      registration=registration,
                                                       is_ready=team_player.is_ready,
                                                       request_team=request_team)
 
