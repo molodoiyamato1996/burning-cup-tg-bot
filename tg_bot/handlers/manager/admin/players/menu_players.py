@@ -14,6 +14,8 @@ async def menu_players(call: types.CallbackQuery, state=FSMContext):
 
     answer_text = Phrases.players_title
 
+    players_ikb = await admin_kb.get_players_ikb()
+
     await call.message.answer(
         text=answer_text,
         reply_markup=players_ikb

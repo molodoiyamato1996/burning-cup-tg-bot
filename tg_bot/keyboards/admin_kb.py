@@ -189,6 +189,36 @@ class AdminKb:
 
         return menu_teams_ikb
 
+    async def get_view_team_ikb(self, players: list, captain, team_id: int) -> InlineKeyboardMarkup:
+        view_team_ikb = InlineKeyboardMarkup(row_width=1)
+
+        view_team_ikb.add(InlineKeyboardButton(
+            f"⚜ {captain.username}", url=f"https://t.me/{captain.tg_username}"
+        ))
+        view_team_ikb.add(InlineKeyboardButton(
+            f"Игрок", callback_data=f"view_player?player_id={captain.id}"
+        ))
+
+        if players:
+            for player in players:
+                view_team_ikb.add(InlineKeyboardButton(
+                    f"{player.username}", url=f"https://t.me/{player.tg_username}"
+                ))
+                view_team_ikb.add(InlineKeyboardButton(
+                    f"Игрок", callback_data=f"view_player?player_id={player.id}"
+                ))
+
+            if len(players) != 4:
+                for empty in range(4 - len(players)):
+                    view_team_ikb.add(InlineKeyboardButton(
+                        f"", callback_data=" "
+                    ))
+
+        view_team_ikb.add(InlineKeyboardButton(
+            "Забанить", callback_data=f"banned_team?team_id={team_id}"
+        ))
+        return view_team_ikb
+
     async def get_set_tournament_ikb(self) -> InlineKeyboardMarkup:
         set_tournament_ikb = InlineKeyboardMarkup(row_width=1)
 

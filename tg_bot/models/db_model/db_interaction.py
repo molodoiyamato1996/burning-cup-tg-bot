@@ -126,7 +126,7 @@ class DBInteraction(DBClient):
             {'request_member_status': status})
         self.session.commit()
 
-    async def get_request_member(self, user_id: int):
+    async def get_request_member(self, user_id: int) -> RequestMember:
         request_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).order_by(
             RequestMember.id.desc()).first()
 
@@ -215,7 +215,7 @@ class DBInteraction(DBClient):
         return team_player
 
     async def get_team_players_by_team_id(self, team_id: int):
-        team_players = self.session.query(TeamPlayer).filter(TeamPlayer.team_id == team_id).all()
+        team_players = self.session.query(TeamPlayer).filter(and_(TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE, TeamPlayer.team_id == team_id)).all()
 
         return team_players
 
