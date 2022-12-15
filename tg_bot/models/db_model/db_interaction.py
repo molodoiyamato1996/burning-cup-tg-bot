@@ -533,15 +533,10 @@ class DBInteraction(DBClient):
 
         self.session.commit()
 
-    async def get_matches(self):
-        matches = self.session.query(Match).all()
+    async def get_matches(self, match_status: str):
+        matches = self.session.query(Match).filter(Match.match_status == match_status).all()
 
         return matches
-
-    # async def get_matches(self, match_status: str):
-    #     matches = self.session.query(Match).filter(Match.match_status == match_status).all()
-    #
-    #     return matches
 
     async def get_match(self, match_id: int) -> Match:
         match = self.session.query(Match).filter(Match.id == match_id).first()

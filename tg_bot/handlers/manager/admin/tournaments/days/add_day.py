@@ -45,7 +45,6 @@ async def add_day(call: types.CallbackQuery, state=FSMContext):
 
 async def choice_game(call: types.CallbackQuery, state=FSMContext):
     await call.answer(' ')
-    await state.finish()
 
     props = await parse_callback('add_day_choice_game', call.data)
 
@@ -58,7 +57,8 @@ async def choice_game(call: types.CallbackQuery, state=FSMContext):
     text = 'Отправьте ссылку на стрим:'
 
     msg_text = day_title + text
-    await call.answer(msg_text)
+
+    await call.message.answer(msg_text)
     await AddDay.next()
 
 
@@ -66,6 +66,7 @@ async def send_stream_link(msg: types.Message, state=FSMContext):
     response_msg_text = msg.text
 
     state_data = await state.get_data()
+
     db_model = msg.bot.get('db_model')
     game_id = state_data.get('game_id')
 
@@ -75,11 +76,12 @@ async def send_stream_link(msg: types.Message, state=FSMContext):
     day_title = '<b>День</b>\n\n'
     text = 'День успешно создан'
     msg_text = day_title + text
+
     await msg.answer(msg_text)
     await state.finish()
 
 
 def register_handlers_add_day(dp: Dispatcher):
-    dp.register_callback_query_handler(add_day, text=['add_day'], state='*', is_admin=True)
+    dp.register_callback_query_handler(add_day, text=["add_day"], state='*', is_admin=True)
     dp.register_callback_query_handler(choice_game, state=AddDay.CHOICE_GAME, is_admin=True)
     dp.register_message_handler(send_stream_link, state=AddDay.ENTER_STREAM_LINK, is_admin=True)

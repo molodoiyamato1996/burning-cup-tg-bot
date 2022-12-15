@@ -1,9 +1,9 @@
 from aiogram import Dispatcher
 
 from .menu_management import register_handlers_menu_management
-from .days import register_handlers_menu_days
-from .games import register_handlers_games
-from .match import register_handlers_match
+from tg_bot.handlers.manager.admin.tournaments.days import register_handlers_menu_days
+from tg_bot.handlers.manager.admin.tournaments.games import register_handlers_games
+from tg_bot.handlers.manager.admin.tournaments.match import register_handlers_match
 
 
 def register_handlers_management(dp: Dispatcher):

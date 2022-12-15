@@ -13,6 +13,21 @@ class AdminKb:
     # Tournament
     ib_set_tournament = InlineKeyboardButton("Назначить", callback_data="set_tournament")
 
+    # Days
+    ib_days = InlineKeyboardButton("Дни", callback_data="days")
+
+    # Days Actions
+    add_day = InlineKeyboardButton("Добавить", callback_data="add_day")
+    finish_day = InlineKeyboardButton('Закончить', callback_data='finish_day')
+    delete_day = InlineKeyboardButton('Удалить', callback_data='delete_day')
+    set_day = InlineKeyboardButton('Изменить', callback_data='set_day')
+
+    # Games
+    ib_games = InlineKeyboardButton("Игры", callback_data="games")
+
+    # Matches
+    ib_matches = InlineKeyboardButton("Матчи", callback_data="matches")
+
     # Registration
     ib_registration = InlineKeyboardButton("Регистрация", callback_data="registration")
 
@@ -101,6 +116,8 @@ class AdminKb:
             tournament_ikb.add(self.ib_set_tournament)
         elif not registration or registration.registration_status == RegistrationStatus.CANCEL:
             tournament_ikb.add(self.ib_registration)
+        elif registration.registration_status == RegistrationStatus.CLOSE:
+            tournament_ikb.add(self.ib_registration).add(self.tournament_teams).add(self.matches).add(self.games).add(self.days)
         elif registration.registration_status != RegistrationStatus.CANCEL:
             tournament_ikb.add(self.ib_registration).add(self.tournament_teams)
 
@@ -221,10 +238,8 @@ class AdminKb:
         add_day_choice_game_ikb = InlineKeyboardMarkup(row_width=1)
 
         add_day_choice_game_ikb.add(
-            InlineKeyboardButton(f'{game.get("first_tournament_team").photo} vs {game.get("second_tournament_team").photo}', callback_data=f'add_days_choice_game?game_id={game.id}')
+            InlineKeyboardButton(f'{game.get("first_tournament_team").name} vs {game.get("second_tournament_team").name}', callback_data=f'add_day_choice_game?game_id={game.get("id")}')
         )
-
-
         return add_day_choice_game_ikb
 
     async def get_confirm_finish_day_ikb(self) -> InlineKeyboardMarkup:
@@ -240,15 +255,10 @@ class AdminKb:
     async def get_menu_days_ikb(self, day) -> InlineKeyboardMarkup:
         menu_days_ikb = InlineKeyboardMarkup(row_width=1)
 
-        add_day = InlineKeyboardButton('Добавить', callback_data='add_day')
-        finish_day = InlineKeyboardButton('Закончить', callback_data='finish_day')
-        delete_day = InlineKeyboardButton('Удалить', callback_data='delete_day')
-        set_day = InlineKeyboardButton('Изменить', callback_data='set_day')
-
         if day:
-            menu_days_ikb.add(delete_day).add(set_day).add(finish_day)
+            menu_days_ikb.add(self.delete_day).add(self.set_day).add(self.finish_day)
         else:
-            menu_days_ikb.add(add_day)
+            menu_days_ikb.add(self.add_day)
 
         return menu_days_ikb
 

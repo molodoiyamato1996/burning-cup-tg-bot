@@ -3,14 +3,12 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from tg_bot.types.team_player import TeamPlayerStatus
-from tg_bot.types.registration import RegistrationStatus
 from tg_bot.misc.generate_invite_code import generate_invite_code
 
 from tg_bot.types.request import RequestStatus
 from tg_bot.misc.phares import Phrases
 from tg_bot.types.team import TeamStatus
 
-from tg_bot.types.player import CreateTeam
 from tg_bot.misc.sctripts import parse_callback, notify_user, check_rule_team_player, notify_moderators
 
 
@@ -73,59 +71,6 @@ async def menu_team(call: types.CallbackQuery, state=FSMContext):
 
 
 # PLAYER FUNCTIONS
-async def create_team(call: types.CallbackQuery, state=FSMContext):
-    await state.finish()
-    await call.answer(' ')
-
-    await call.message.answer('Введите название команды:')
-    await state.set_state(CreateTeam.ENTER_TEAM_NAME)
-
-
-async def enter_name_team(msg: types.Message, state=FSMContext):
-    team_name = msg.text
-
-    db_model = msg.bot.get('db_model')
-
-    if await db_model.is_valid_team_name(name=team_name):
-        await msg.answer('Данное название уже занято!')
-        return
-
-    async with state.proxy() as data:
-        data['team_name'] = team_name
-
-    await msg.answer('Отправьте фото команды:')
-    await CreateTeam.next()
-
-
-async def send_team_photo(msg: types.Message, state=FSMContext):
-    db_model = msg.bot.get('db_model')
-
-    user_id = msg.from_user.id
-
-    state_data = await state.get_data()
-    team_name = state_data.get('team_name')
-
-    public_src = r'C:\Users\old_cat\Documents\projects\burning-cup\react-app\public'
-    team_photo = f'{team_name}.png'
-    team_photo_src = f'{public_src}\{team_photo}'
-
-    await msg.photo[-1].download(destination_file=team_photo_src)
-    photo_telegram_id = msg.photo[-1].file_id
-
-    invite_code = await generate_invite_code()
-
-    while await db_model.is_valid_invite_code(invite_code=invite_code):
-        invite_code = await generate_invite_code()
-
-    team = await db_model.add_team(name=team_name, photo=team_photo, photo_telegram_id=photo_telegram_id,
-                                   invite_code=invite_code)
-
-    await db_model.add_team_player(user_id=user_id, team_id=team.id, is_captain=True)
-
-    await msg.answer('✅ Команда успешно создана!')
-    await state.finish()
-
-
 async def leave_the_team(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer(' ')
@@ -352,15 +297,6 @@ async def confirm_ready(call: types.CallbackQuery, state=FSMContext):
 
     await call.message.answer("Вы успешно подтвердили свою готовость.")
 
-# async def participate(self, call: types.CallbackQuery, state=FSMContext):
-#     await state.finish()
-#     await call.answer(' ')
-#
-#
-# async def confirm_participate(self, call: types.CallbackQuery, state=FSMContext):
-#     await state.finish()
-#     await call.answer(' ')
-
 
 async def set_team_name(call: types.CallbackQuery, state=FSMContext):
     await call.answer()
@@ -485,8 +421,3 @@ def register_team_handlers(dp: Dispatcher):
                                        is_team_player=True)
 
     # PLAYER FUNCTIONS
-
-    dp.register_callback_query_handler(create_team, text=['create_team'], state='*', is_player=True)
-    dp.register_message_handler(enter_name_team, state=CreateTeam.ENTER_TEAM_NAME, is_player=True)
-    dp.register_message_handler(send_team_photo, state=CreateTeam.SEND_TEAM_PHOTO,
-                                content_types=types.ContentType.PHOTO, is_player=True)
