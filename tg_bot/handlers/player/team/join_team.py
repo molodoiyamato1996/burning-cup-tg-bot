@@ -1,17 +1,12 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
-
 from tg_bot.types.player import JoinTeam
-from tg_bot.misc.sctripts import check_rule_team_player
 
 
 async def join_team(call: types.CallbackQuery, state=FSMContext):
     await state.finish()
     await call.answer(' ')
-
-    if not await check_rule_team_player(call=call):
-        return
 
     await call.message.answer('Введите код приглашения:')
     await state.set_state(JoinTeam.ENTER_INVITE_CODE)
