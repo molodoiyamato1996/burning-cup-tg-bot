@@ -12,6 +12,7 @@ class Phrases:
     registration_success_add: str = "<b>Регистрация успешно добавлена</b>\n\n"
 
     menu_profile: str = f'<b>{Emoji.nav} Профиль</b>\n\n'
+    menu_requests: str = f'<b>{Emoji.nav} Запросы</b>\n\n'
     menu_team: str = f'<b>{Emoji.nav} Команда</b>\n\n'
     menu_support: str = f'<b>{Emoji.nav} Поддержка</b>\n\n'
     menu_rules: str = f'<b>{Emoji.nav} Регламент</b>\n\n'
@@ -48,8 +49,7 @@ class Phrases:
     error_discrod_already_taken: str = '<b>❌ Dicrod уже занят</b>'
 
     player_banned: str = '<b>🔒 Доступ запрещён</b>\n\n' \
-                         'Вы были навсегда забанены на турнире\n\n' \
-                         '<b>По причине:</b>\n'
+                         'Вы были навсегда забанены на турнире\n\n'
 
     request_member_wait: str = '<b>⏳ Ваша заявка ожидает рассмотрения</b>\n\n' \
                                'Ожидайте уведомление 🛎'

@@ -125,14 +125,13 @@ class Team(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name = Column(String(64), nullable=False)
-    photo = Column(String(256), nullable=False)
+    photo = Column(String(256), nullable=True)
     photo_telegram_id = Column(String(512), nullable=False)
     invite_code = Column(String(256), nullable=False, unique=True)
     team_status = Column(String(64), nullable=False)
 
-    def __init__(self, name: str, photo: str, photo_telegram_id: str, invite_code: str):
+    def __init__(self, name: str, photo_telegram_id: str, invite_code: str):
         self.name = name
-        self.photo = photo
         self.photo_telegram_id = photo_telegram_id
         self.invite_code = invite_code
         self.team_status = TeamStatus.ACTIVE

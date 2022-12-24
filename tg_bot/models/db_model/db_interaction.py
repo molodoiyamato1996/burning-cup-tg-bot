@@ -9,7 +9,7 @@ from tg_bot.models.db_model.db_client import DBClient
 
 from tg_bot.types.moderator import ModeratorRule
 from tg_bot.types.team_player import TeamPlayerStatus
-from tg_bot.types.game.format import FormatGame
+from tg_bot.types.request import RequestStatus
 from tg_bot.types.match import MatchStatus
 from tg_bot.types.game import GameStatus
 from tg_bot.types.tournament import TournamentStatus
@@ -125,6 +125,30 @@ class DBInteraction(DBClient):
         self.session.query(RequestMember).filter(RequestMember.user_id == user_id).update(
             {'request_member_status': status})
         self.session.commit()
+
+    async def set_player_status(self, player_id: int, status: str):
+        self.session.query(Player).filter(Player.id == player_id).update(
+            {'player_status': status})
+
+        self.session.commit()
+
+    async def set_team_player_status(self, team_player_id: int, status: str):
+        self.session.query(TeamPlayer).filter(TeamPlayer.id == team_player_id).order_by(TeamPlayer.id.desc()).update(
+            {'team_player_status': status})
+
+        self.session.commit()
+
+    async def set_member_status(self, member_id: int, status: str):
+        self.session.query(Member).filter(Member.id == member_id).update(
+            {'member_status': status})
+
+        self.session.commit()
+
+    # async def set_team_status(self, team_id: int, status: str):
+    #     self.session.query(Member).filter(Member.id == team_id).update(
+    #         {'team_status': status})
+    #
+    #     self.session.commit()
 
     async def get_request_member(self, user_id: int) -> RequestMember:
         request_member = self.session.query(RequestMember).filter(RequestMember.user_id == user_id).order_by(
@@ -348,7 +372,7 @@ class DBInteraction(DBClient):
     async def get_team_players_without_captain(self, team_id: int, captain_id: int):
         team_players = self.session.query(TeamPlayer).filter(
             and_(TeamPlayer.team_id == team_id, TeamPlayer.team_player_status == TeamPlayerStatus.ACTIVE,
-                 TeamPlayer.id != captain_id)).all()
+                 not TeamPlayer.is_captain)).all()
 
         return team_players
 
@@ -384,10 +408,9 @@ class DBInteraction(DBClient):
 
         return team.invite_code
 
-    async def add_team(self, name: str, photo: str, photo_telegram_id: str, invite_code: str) -> Team:
+    async def add_team(self, name: str, photo_telegram_id: str, invite_code: str) -> Team:
         self.session.add(Team(
             name=name,
-            photo=photo,
             photo_telegram_id=photo_telegram_id,
             invite_code=invite_code
         ))
@@ -406,8 +429,8 @@ class DBInteraction(DBClient):
         self.session.query(Team).filter(Team.id == team_id).update({'name': name})
         self.session.commit()
 
-    async def set_team_photo(self, team_id: int, photo: str):
-        self.session.query(Team).filter(Team.id == team_id).update({'photo': photo})
+    async def set_team_photo_telegram_id(self, team_id: int, photo_telegram_id: str):
+        self.session.query(Team).filter(Team.id == team_id).update({'photo_telegram_id': photo_telegram_id})
         self.session.commit()
 
     async def set_team_status(self, team_id: int, status: str):
@@ -698,3 +721,9 @@ class DBInteraction(DBClient):
         })
 
         self.session.commit()
+
+    async def get_member_requests(self):
+        member_requests = self.session.query(RequestMember).all()
+
+        return member_requests
+

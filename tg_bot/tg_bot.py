@@ -1,7 +1,10 @@
 import logging
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
 from tg_bot.keyboards import kb
 from tg_bot.types.institution import InstitutionType
 from tg_bot.types.moderator import ModeratorRule
@@ -25,12 +28,13 @@ class TgBot:
         self.db_interaction = DBInteraction(sqlalchemy_url=self.sqlalchemy_database_uri, base=Base)
         self.db_interaction.create_tables()
 
-        self.bot['config'] = self.config
-        self.bot['kb'] = kb
-        self.bot['phrases'] = Phrases
-        self.bot['db_model'] = self.db_interaction
-
+        self.bot["config"] = self.config
+        self.bot["kb"] = kb
+        self.bot["phrases"] = Phrases
+        self.bot["db_model"] = self.db_interaction
+        self.bot["scheduler"] = AsyncIOScheduler(timezone="Europe/Krasnoyarsk")
         self.storage = MemoryStorage()
+
         self.dp = Dispatcher(self.bot, storage=self.storage)
 
         logging.basicConfig(
@@ -49,10 +53,6 @@ class TgBot:
             register_all_filters(self.dp)
 
         register_all_handlers(self.dp)
-
-        # await self.add_test_team()
-        # await self.add_test_account()
-        # await self.add_test_tournament_team(count_teams=15)
 
         try:
             await self.dp.start_polling()

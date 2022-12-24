@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
 
+from .banned import BannedFilter
 from .admin import AdminFilter
 from .player import PlayerFilter
 from .captain import CaptainFilter
@@ -11,6 +12,7 @@ from .request_team import RequestTeamFilter
 
 
 def register_all_filters(dp: Dispatcher):
+    dp.filters_factory.bind(BannedFilter)
     dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(RequestTeamFilter)
     dp.filters_factory.bind(MemberFilter)

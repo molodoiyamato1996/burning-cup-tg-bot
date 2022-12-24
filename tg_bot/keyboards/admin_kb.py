@@ -44,6 +44,17 @@ class AdminKb:
 
     ib_view_all_players = InlineKeyboardButton("Показать всех", callback_data="view_all_players")
 
+    # Requests
+    ib_requests = InlineKeyboardButton("Запросы", callback_data="requests")
+
+    # Member Requests
+    ib_member_requests = InlineKeyboardButton("Участники", callback_data="member_requests")
+    ib_view_all_member_requests = InlineKeyboardButton("Все", callback_data="view_member_requests")
+    ib_view_member_requests = InlineKeyboardButton("Показать", callback_data="view_member_request")
+
+    # Tournament team Requests
+    ib_tournament_team_requests = InlineKeyboardButton("Турнирные команды", callback_data="tournament_team_requests")
+    ib_view_all_tournament_team_requests = InlineKeyboardButton("Все", callback_data="view_all_tournament_team_requests")
 
     # Search
     ib_search_player = InlineKeyboardButton("Поиск", callback_data="search_player_select")
@@ -96,6 +107,33 @@ class AdminKb:
         self.set_limit_teams = InlineKeyboardButton('Ограничение команд', callback_data='set_limit_teams')
         self.set_tournament_status = InlineKeyboardButton('Статус', callback_data='set_tournament_status')
 
+    async def get_menu_requests_ikb(self) -> InlineKeyboardMarkup:
+        menu_requests_ikb = InlineKeyboardMarkup(row_width=1)
+
+        menu_requests_ikb.add(self.ib_member_requests)
+
+        return menu_requests_ikb
+
+    async def get_member_requests_ikb(self) -> InlineKeyboardMarkup:
+        member_requests_ikb = InlineKeyboardMarkup(row_width=1)
+
+        member_requests_ikb.add(self.ib_view_all_member_requests)
+
+        return member_requests_ikb
+
+    async def get_view_member_requests_ikb(self, member_requests: list) -> InlineKeyboardMarkup:
+        view_member_requests = InlineKeyboardMarkup(row_width=1)
+
+        for member_request in member_requests:
+            view_member_requests.add(InlineKeyboardButton(
+                f"{member_request.request_member_status} {member_request.last_name} {member_request.first_name} {member_request.patronymic} {member_request.group}", callback_data=" "
+            ))
+            view_member_requests.add(InlineKeyboardButton(
+                "Показать", callback_data=f"view_request_member?user_id={member_request.user_id}"
+            ))
+
+        return view_member_requests
+
     async def get_start_ikb(self) -> InlineKeyboardMarkup:
         start_ikb = InlineKeyboardMarkup(row_width=1)
 
@@ -103,6 +141,7 @@ class AdminKb:
             self.tournaments,
             self.teams,
             self.players,
+            self.ib_requests
         ]
 
         start_ikb.add(*start_buttons)

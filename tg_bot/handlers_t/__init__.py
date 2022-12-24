@@ -1,8 +1,8 @@
 # from aiogram import Dispatcher
 #
 #
-# from tg_bot.handlers.manager.admin import register_handlers_admin
-# from tg_bot.handlers.manager.moderator import register_handlers_moderator
+# from tg_bot.handlers.admin.admin import register_handlers_admin
+# from tg_bot.handlers.admin.moderator import register_handlers_moderator
 # from .captain_t import register_handlers_captain
 # from .team_player import register_handlers_team_player
 # from .player import register_handlers_player
