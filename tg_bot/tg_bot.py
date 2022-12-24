@@ -32,7 +32,7 @@ class TgBot:
         self.bot["kb"] = kb
         self.bot["phrases"] = Phrases
         self.bot["db_model"] = self.db_interaction
-        self.bot["scheduler"] = AsyncIOScheduler(timezone="Europe/Krasnoyarsk")
+        self.bot["scheduler"] = AsyncIOScheduler(timezone="Asia/Krasnoyarsk")
         self.storage = MemoryStorage()
 
         self.dp = Dispatcher(self.bot, storage=self.storage)

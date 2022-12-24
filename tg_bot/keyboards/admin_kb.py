@@ -5,6 +5,9 @@ from tg_bot.types.tournament import TournamentStatus
 
 
 class AdminKb:
+    #
+    spam = InlineKeyboardButton("Рассылка", callback_data="spam")
+
     # Back
     ib_back_to_menu = InlineKeyboardButton("Вернуться", callback_data="back_to_menu")
     ib_back_to_tournament = InlineKeyboardButton("Вернуться", callback_data="back_to_tournament")
@@ -138,6 +141,7 @@ class AdminKb:
         start_ikb = InlineKeyboardMarkup(row_width=1)
 
         start_buttons = [
+            self.span,
             self.tournaments,
             self.teams,
             self.players,
