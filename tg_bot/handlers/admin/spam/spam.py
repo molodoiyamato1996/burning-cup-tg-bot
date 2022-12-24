@@ -34,5 +34,5 @@ async def enter_text(msg: types.Message, state=FSMContext):
 
 
 def register_handlers_spam(dp: Dispatcher):
-    dp.register_callback_query_handler(spam, text=["span"], state="*", is_admin=True)
+    dp.register_callback_query_handler(spam, text=["spam"], state="*", is_admin=True)
     dp.register_message_handler(enter_text, state=Spam.ENTER_TEXT, is_admin=True)

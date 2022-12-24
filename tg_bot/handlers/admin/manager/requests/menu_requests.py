@@ -55,7 +55,9 @@ async def view_member_requests(call: types.CallbackQuery, state=FSMContext):
     )
 
 
+
 def register_handlers_menu_requests(dp: Dispatcher):
     dp.register_callback_query_handler(menu_requests, text=["requests"], state="*", is_admin=True)
     dp.register_callback_query_handler(menu_member_request, text=["member_requests"], state="*", is_admin=True)
     dp.register_callback_query_handler(view_member_requests, text=["view_member_requests"], state="*", is_admin=True)
+

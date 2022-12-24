@@ -284,4 +284,9 @@ def register_handlers_moderator(dp: Dispatcher):
                                        is_moderator=True)
     dp.register_message_handler(enter_comment_request_student, state=VerifRequestMember.ENTER_RESPONSE,
                                 is_moderator=True)
-
+    dp.register_callback_query_handler(view_request_team, text_contains=['view_request_team'], state='*',
+                                       is_moderator=True)
+    dp.register_callback_query_handler(verif_request_team, text_contains=['verif_request_team'], state='*',
+                                       is_moderator=True)
+    dp.register_message_handler(enter_comment_request_team, state=VerifRequestTeam.ENTER_COMMENT_REQUEST_TEAM,
+                                is_moderator=True)
