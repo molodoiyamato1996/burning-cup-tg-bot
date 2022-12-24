@@ -380,7 +380,7 @@ async def send_new_team_photo(msg: types.Message, state=FSMContext):
     state_data = await state.get_data()
     team_id = state_data.get('team_id')
 
-    await db_model.set_team_photo(team_id=team_id, photo_telegram_id=photo_telegram_id)
+    await db_model.set_team_photo_telegram_id(team_id=team_id, photo_telegram_id=photo_telegram_id)
 
     await msg.answer('Вы успешно изменили фотографию команды.')
 

@@ -202,6 +202,8 @@ async def verif_request_team(call: types.CallbackQuery, state=FSMContext):
 
             await call.bot.download_file(file_path=file_path, destination_dir=path)
 
+            await db_model.set_team_photo(team_id=team.id, photo=photo_name)
+
             await db_model.add_tournament_team(
                 captain_id=captain.id,
                 players=team_players,

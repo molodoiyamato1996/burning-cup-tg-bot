@@ -429,6 +429,9 @@ class DBInteraction(DBClient):
         self.session.query(Team).filter(Team.id == team_id).update({'name': name})
         self.session.commit()
 
+    async def set_team_photo(self, team_id: int, photo: str):
+        self.session.query(Team).filter(Team.id == team_id).update({'photo': photo})
+        self.session.commit()
     async def set_team_photo_telegram_id(self, team_id: int, photo_telegram_id: str):
         self.session.query(Team).filter(Team.id == team_id).update({'photo_telegram_id': photo_telegram_id})
         self.session.commit()
