@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from tg_bot.types.registration import RegistrationStatus
 from tg_bot.types.tournament import TournamentStatus
+from tg_bot.models.db_model.models import Player
 
 
 class AdminKb:
@@ -34,6 +35,11 @@ class AdminKb:
     # Registration
     ib_registration = InlineKeyboardButton("Регистрация", callback_data="registration")
 
+    # Registration -> Requests
+    ib_requests = InlineKeyboardButton("Запросы", callback_data="team_requests")
+
+    ib_view_all_requests = InlineKeyboardButton("Все", callback_data="view_all_requests")
+
     # Registration Actions
     ib_set_registration = InlineKeyboardButton("Назначить", callback_data="set_registration")
     ib_cancel_registration = InlineKeyboardButton("Отменить", callback_data="cancel_registration")
@@ -46,9 +52,6 @@ class AdminKb:
     ib_players = InlineKeyboardButton("Игроки", callback_data="players")
 
     ib_view_all_players = InlineKeyboardButton("Показать всех", callback_data="view_all_players")
-
-    # Requests
-    ib_requests = InlineKeyboardButton("Запросы", callback_data="requests")
 
     # Member Requests
     ib_member_requests = InlineKeyboardButton("Участники", callback_data="member_requests")
@@ -109,6 +112,25 @@ class AdminKb:
         self.set_anons_date = InlineKeyboardButton('Дату анонса', callback_data='set_date_anons')
         self.set_limit_teams = InlineKeyboardButton('Ограничение команд', callback_data='set_limit_teams')
         self.set_tournament_status = InlineKeyboardButton('Статус', callback_data='set_tournament_status')
+
+    async def get_moderation_team_request_ikb(self, team_request_id: int) -> InlineKeyboardMarkup:
+        moderation_team_request_ikb = InlineKeyboardMarkup(row_width=2)
+
+        valid_ib = InlineKeyboardButton("Ок", callback_data=f"moderation_team_request?result=SUCCESS&team_request_id={team_request_id}")
+        no_valid_ib = InlineKeyboardButton("Нет", callback_data="moderation_team_request?result=FAIL&team_request_id={team_request_id}")
+
+        moderation_team_request_ikb.add(valid_ib).add(no_valid_ib)
+
+        return moderation_team_request_ikb
+    async def get_view_all_team_requests_ikb(self, team_requests: list) -> InlineKeyboardMarkup:
+        view_all_team_requests_ikb = InlineKeyboardMarkup(row_width=1)
+
+        for team_request in team_requests:
+            view_all_team_requests_ikb.add(InlineKeyboardButton(
+                text=f"{team_request.request_status} {team_request.date_request}", callback_data=f"view_team_requests?team_request_id={team_request.id}"
+            ))
+
+        return view_all_team_requests_ikb
 
     async def get_menu_requests_ikb(self) -> InlineKeyboardMarkup:
         menu_requests_ikb = InlineKeyboardMarkup(row_width=1)
